@@ -1,0 +1,161 @@
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <style> 
+            body {
+                margin: 10px;
+            }
+            #jxgbox1 {  
+                border:1px solid black; background-size: contain; background-repeat: no-repeat;
+                background-position: center; background-size: 80% auto;
+            }
+            
+        </style>
+
+    </head>
+
+
+    <body>       
+        <!-- Jxg Box -->
+        <div id='jxgbox1' class='jxgbox' style='width:500px; height:350px; float:left; border: solid #1f628d 2px;'></div>        
+        
+        <!-- Menu -->
+        <div id="menu" style="width: 170px; float: left;">
+             <div id='wrapper'> 
+             <ul>
+                  <select id="vectorList">
+                      <option value="F_N">Normal - F_N</option>
+                      <option value="F_g">Gravitational - F_g</option>
+                      <option value="F_f">Friction - F_f</option>
+                      <option value="F_T">Tension - F_T</option>
+                      <option value="F_S">Spring Force - F_S</option>
+                  </select>
+                  <input class="btn" type="button" value="Add Selected Force from List" onClick="addVector()">
+
+                  <br>
+                  <br>
+                  <input class="btn" type="button" value="Clear All" onClick="clearAll()">                        
+             </ul>
+            
+            </div>
+          </div>
+
+        
+                        
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jsxgraph/0.98/jsxgraphcore.js"></script>
+        <script type='text/javascript'>
+            
+            board = initBoard();
+
+            function initBoard() {
+                bboxlimits = [-10, 10, 10, -10];
+                var board = JXG.JSXGraph.initBoard('jxgbox1', {boundingbox: bboxlimits, axis:false, showCopyright: false});
+                state = {};
+
+                vectors = {};
+                vectors.F_N = undefined;
+                vectors.F_g = undefined;
+                vectors.F_f = undefined;
+                vectors.F_T = undefined;
+                vectors.F_S = undefined;
+
+                var im = board.create('image',["https://studio.edge.edx.org/c4x/DavidsonNext/Ann101/asset/box_on_incline.png", 
+                                      [bboxlimits[0]+0.8,bboxlimits[3]], [(bboxlimits[1]-bboxlimits[0]),1.0*(bboxlimits[3]-bboxlimits[2])] ],
+                                      {fixed:true});
+            
+                cm = board.create('point',[0,1.5],{size:1,fixed:true,name:'cm',withLabel:false,strokeColor:'pink',fillColor:'pink'})
+
+                return board;
+            }
+
+            // Create a vector providing two points.
+            addVector = function() {
+                var e = document.getElementById("vectorList");
+                var name = e.options[e.selectedIndex].value;
+                vectors[name] = createVector(name,[3,1],[5,5]); 
+                console.log(vectors); 
+                // console.log(board.elementsByName.N.point1.X(),board.elementsByName.N.point1.Y())
+            }
+
+            // Create a vector providing two points.
+            createVector = function(vName,v1,v2) {
+                if (!board.elementsByName[vName]) {
+                    var tail = board.create('point', v1,{size:1,withLabel:false});
+                    var tip = board.create('point', v2,{size:2,name:vName});
+                    var l1 = board.create('arrow', [tail, tip],{name:vName}); 
+                    return l1;
+                }
+            }
+
+            clearAll = function() {
+                board = initBoard();
+            }
+
+            grabVectorProp = function(vObject) {
+                if (vObject) {
+                    var x1 = board.elementsByName[vObject.name].point1.X();
+                    var y1 = board.elementsByName[vObject.name].point1.Y();
+                    var x2 = board.elementsByName[vObject.name].point2.X();
+                    var y2 = board.elementsByName[vObject.name].point2.Y();
+                    var angle = board.elementsByName[vObject.name].getAngle();
+                    angle = 180.0*angle/Math.PI;
+                    if (angle < 0) {
+                        angle = 360.0 + angle;
+                    }
+                    var length = board.elementsByName[vObject.name].L();
+
+                    return {'name':vObject.name,'tail':[x1,y1],'tip':[x2,y2],'length':length,'angle':angle}
+                }
+                else {
+                    return undefined;
+                }
+            }
+
+            
+            fetchState = function() {
+                state = {};
+                state['cm'] = {'p1':[cm.X(),cm.Y()]};
+                state['F_N'] = grabVectorProp(vectors.F_N);
+                state['F_g'] = grabVectorProp(vectors.F_g);
+                state['F_f'] = grabVectorProp(vectors.F_f);
+                state['F_T'] = grabVectorProp(vectors.F_T);
+                state['F_T'] = grabVectorProp(vectors.F_S);
+                console.log(state);
+                return state;
+            }
+
+            getInput = function(){
+                return JSON.stringify(fetchState());
+            }
+
+            getState = function(){
+                //state = {input: JSON.parse(getinput()), y:xfield.position};
+                state = {input: JSON.parse(getInput())}
+                statestr = JSON.stringify(state);
+                // $('#msg').html('getstate ' + statestr);
+                return statestr
+            }
+
+            setState = function(statestr){
+                state = JSON.parse(statestr);
+                console.log(state); 
+                //addNormal();
+                if (state['N']) {
+                    vN = createVector('N',state['N']['tail'],state['N']['tip']);
+                }
+                if (state['g']) {
+                    vg = createVector('g',state['g']['tail'],state['g']['tip']);
+                }
+                if (state['f']) {
+                    vf = createVector('f',state['f']['tail'],state['f']['tip']);
+                }
+                board.update()
+                
+                //alert(statestr);
+                console.debug('State updated successfully from saved.');
+            }
+
+        </script>
+    </body>
+</html>

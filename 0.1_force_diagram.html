@@ -65,134 +65,222 @@
         
         <!-- Menu -->
         <div id="menu" style="width: 170px; float: left;">
-              <ul>
-                  Add Forces
-                  <input class="btn" type="button" value="Normal" onClick="var vN = addNormal()">
-                  <input class="btn" type="button" value="Gravitational" onClick="addGravitational()">
-                  <input class="btn" type="button" value="Friction" onClick="addFriction()">
-                  <br></br>
+             <div id='wrapper'>
+             <ul>
+                  <select id="vectorList">
+                      <option value="N">Normal - N</option>
+                      <option value="g">Gravitational - g</option>
+                      <option value="f">Friction - f</option>
+                  </select>
+                  <input class="btn" type="button" value="Add Selected Force from List" onClick="addVector()">
 
-                  <input class="btn" type="button" value="Clear" onClick="clearAll()">
-            <!--
-                  <input class="btn" type="button" value="Console Log State" onClick="fetchState()">
-            -->  
-              </ul>
-          </div>
+                  <br>
+                  <br>
+                  <input class="btn" type="button" value="Clear All" onClick="clearAll()">
+             </ul>
+
+            </div>
+        </div>
 
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jsxgraph/0.98/jsxgraphcore.js"></script>
         <script type='text/javascript'>
-            
-            board = initBoard();
 
-            function initBoard() {
-                bboxlimits = [-10, 10, 10, -10];
-                var board = JXG.JSXGraph.initBoard('jxgbox1', {boundingbox: bboxlimits, axis:false, showCopyright: false});
-                state = {};
+            (function() {
+                var global = {
+                    vectors: {},
+                    state: {},
+                    drawing: false,
+                    temp_vector: undefined
+                };
+                var board = initBoard();
+                bindMouseEvents(board);
 
-                N = undefined;
-                vg = undefined;
-                vf = undefined;
+                function initBoard() {
+                    global.vectors = { N: null, g: null, f: null};
+                    global.temp_vector = null;
+                    global.drawing = false;
 
-                var im = board.create('image',["https://studio.edge.edx.org/c4x/DavidsonNext/Ann101/asset/simple_car.png", [bboxlimits[0],bboxlimits[3]], [(bboxlimits[1]-bboxlimits[0]),1.2*(bboxlimits[3]-bboxlimits[2])] ],{fixed:true});
-            
-                cm = board.create('point',[0,1.5],{size:1,fixed:true,name:'cm',withLabel:false,strokeColor:'pink',fillColor:'pink'})
+                    var bboxlimits = [-10, 10, 10, -10];
+                    var board = JXG.JSXGraph.initBoard('jxgbox1', {
+                        boundingbox: bboxlimits,
+                        axis: false,
+                        showCopyright: false
+                    });
 
-                return board;
-            }
+                    var im = board.create(
+                        'image',
+                        [
+                            "/c4x/edX/JS101/asset/simple_car.png",
+                            [bboxlimits[0], bboxlimits[3]], [(bboxlimits[1] - bboxlimits[0]), 1.2 * (bboxlimits[3] - bboxlimits[2])]
+                        ],
+                        {fixed: true}
+                    );
 
-            // Create a vector providing two points.
-            addNormal = function() {
-                vN = createVector('N',[3,1],[5,5]); 
-                // console.log(vN); 
-                //console.log(board.elementsByName.N.point1.X(),board.elementsByName.N.point1.Y())
-            }
-
-            addFriction = function() {
-                vf = createVector('f',[5,1],[7,5]);  
-            }
-
-            addGravitational = function() {
-                vg = createVector('g',[4,1],[6,5]);
-                //console.log(vg)
-            }
-
-            // Create a vector providing two points.
-            createVector = function(vName,v1,v2) {
-                if (!board.elementsByName[vName]) {
-                    var tail = board.create('point', v1,{size:1,withLabel:false});
-                    var tip = board.create('point', v2,{size:2,name:vName});
-                    var l1 = board.create('arrow', [tail, tip],{name:vName}); 
-                    return l1;
-                }
-            }
-
-            clearAll = function() {
-                board = initBoard();
-            }
-
-            grabVectorProp = function(vObject) {
-                if (vObject) {
-                    var x1 = board.elementsByName[vObject.name].point1.X();
-                    var y1 = board.elementsByName[vObject.name].point1.Y();
-                    var x2 = board.elementsByName[vObject.name].point2.X();
-                    var y2 = board.elementsByName[vObject.name].point2.Y();
-                    var angle = board.elementsByName[vObject.name].getAngle();
-                    angle = 180.0*angle/Math.PI;
-                    if (angle < 0) {
-                        angle = 360.0 + angle;
+                    var boardImages = document.querySelectorAll("#jxgbox1 image");
+                    for (var i=0; i < boardImages.length; i++) {
+                        boardImages[i].addEventListener('mousedown', function(e) {e.preventDefault(); });
                     }
-                    var length = board.elementsByName[vObject.name].L();
 
-                    return {'name':vObject.name,'tail':[x1,y1],'tip':[x2,y2],'length':length,'angle':angle}
+                    global.cm = board.create(
+                        'point',
+                        [0, 1.5],
+                        {size: 1, fixed: true, name: 'cm', withLabel: false, strokeColor: 'pink', fillColor: 'pink'}
+                    );
+
+                    return board;
                 }
-                else {
-                    return undefined;
+
+                function getMouseCoords(e) {
+                    var i;
+                    if (e[JXG.touchProperty]) {
+                        i = 0;
+                    }
+                    var cPos = board.getCoordsTopLeftCorner(e, i),
+                        absPos = JXG.getPosition(e, i),
+                        dx = absPos[0]-cPos[0],
+                        dy = absPos[1]-cPos[1];
+
+                    return new JXG.Coords(JXG.COORDS_BY_SCREEN, [dx, dy], board);
                 }
-            }
 
-            fetchState = function() {
-                input = {};
-                input['cm'] = {'p1':[cm.X(),cm.Y()]};
-                input['N'] = grabVectorProp(vN);
-                input['g'] = grabVectorProp(vg);
-                input['f'] = grabVectorProp(vf);
-                console.log(input);
-                
-                return input;
-            }
-
-            getInput = function(){
-                return JSON.stringify(fetchState());
-            }
-
-            getState = function(){
-                //state = {input: JSON.parse(getinput()), y:xfield.position};
-                state = {input: JSON.parse(getInput())}
-                statestr = JSON.stringify(state);
-                // $('#msg').html('getstate ' + statestr);
-                return statestr
-            }
-
-            setState = function(statestr){
-                state = JSON.parse(statestr);
-                console.log(state); 
-                input = state.input
-                //addNormal();
-                if (input['N']) {
-                    vN = createVector('N',input['N']['tail'],input['N']['tip']);
+                function bindMouseEvents(board) {
+                    board.on('down', boardDown);
+                    board.on('move', boardMove);
+                    board.on('up', boardUp);
                 }
-                if (input['g']) {
-                    vg = createVector('g',input['g']['tail'],input['g']['tip']);
-                }
-                if (input['f']) {
-                    vf = createVector('f',input['f']['tail'],input['f']['tip']);
-                }
-                board.update()
-                
-                //alert(statestr);
-                console.debug('State updated successfully from saved.');
-            }
 
+                function boardDown(e){
+                    var canCreate = true, coords, el;
+                    coords = getMouseCoords(e);
+
+                    for (el in board.objects) {
+                        if(
+                            JXG.isPoint(board.objects[el]) &&
+                            board.objects[el].hasPoint(coords.scrCoords[1], coords.scrCoords[2]) &&
+                            board.objects[el] != global.cm
+                        ) {
+                            canCreate = false;
+                            break;
+                        }
+                    }
+                    if (canCreate) {
+                        global.drawing = true;
+                        global.temp_vector = createVector('', coords.usrCoords, coords.usrCoords);
+                    }
+                }
+
+                function boardMove(e){
+                    if (!global.drawing) {
+                        return;
+                    }
+                    var coords = getMouseCoords(e);
+
+                    global.temp_vector.point2.moveTo(coords.usrCoords);
+                }
+
+                function boardUp(e) {
+                    if (!global.drawing) {
+                        return;
+                    }
+
+                    var tempVector = global.temp_vector;
+                    var element = document.getElementById("vectorList");
+                    var name = element.options[element.selectedIndex].value;
+                    global.vectors[name] = createVector(
+                        name,
+                        tempVector.point1.coords.usrCoords,
+                        tempVector.point2.coords.usrCoords
+                    );
+                    global.temp_vector.point1.remove();
+                    global.temp_vector.point2.remove();
+                    global.temp_vector.remove();
+                    global.drawing = false;
+                }
+
+                // Create a vector providing two points.
+                addVector = function () {
+                    var e = document.getElementById("vectorList");
+                    var name = e.options[e.selectedIndex].value;
+                    global.vectors[name] = createVector(name, [3, 1], [5, 5]);
+                    console.log(global.vectors);
+                };
+
+                // Create a vector providing two points.
+                createVector = function (vName, v1, v2) {
+                    if (!board.elementsByName[vName]) {
+                        var tail = board.create('point', v1, {size: 1, withLabel: false});
+                        var tip = board.create('point', v2, {size: 2, name: vName});
+                        var l1 = board.create('arrow', [tail, tip], {name: vName});
+                        return l1;
+                    }
+                };
+
+                clearAll = function () {
+                    board = initBoard();
+                };
+
+                grabVectorProp = function (vObject) {
+                    if (vObject) {
+                        var boardObject = board.elementsByName[vObject.name];
+                        var angle = boardObject.getAngle();
+                        angle = 180.0 * angle / Math.PI;
+                        if (angle < 0) {
+                            angle = 360.0 + angle;
+                        }
+                        var length = boardObject.L();
+
+                        return {
+                            'name': vObject.name,
+                            'tail': [boardObject.point1.X(), boardObject.point1.Y()],
+                            'tip': [boardObject.point2.X(), boardObject.point2.Y()],
+                            'length': length,
+                            'angle': angle
+                        }
+                    }
+                    else {
+                        return undefined;
+                    }
+                };
+
+
+                fetchState = function () {
+                    global.state = {
+                        cm: {'p1': [global.cm.X(), global.cm.Y()]}
+                    };
+
+                    for (var key in global.vectors) {
+                        if (!global.vectors.hasOwnProperty(key)) {
+                            continue;
+                        }
+                        global.state[key] = grabVectorProp(global.vectors[key]);
+                    }
+                    console.log(global.state);
+                    return global.state;
+                };
+
+                getInput = function () {
+                    return JSON.stringify(fetchState());
+                };
+
+                getState = function () {
+                    return getInput();
+                };
+
+                setState = function (statestr) {
+                    global.state = JSON.parse(statestr);
+                    var state = global.state;
+
+                    for (var key in global.vectors) {
+                        if (!global.vectors.hasOwnProperty(key) || !state.hasOwnProperty(key)) {
+                            continue;
+                        }
+                        global.vectors[key] = createVector(key, state[key]['tail'], state[key]['tip']);
+                    }
+                    board.update();
+
+                    console.debug('State updated successfully from saved.');
+                };
+            })()
         </script>
     <script type="text/javascript">window.NREUM||(NREUM={});NREUM.info={"beacon":"beacon-6.newrelic.com","queueTime":0,"licenseKey":"1beac94c95","agent":"js-agent.newrelic.com/nr-476.min.js","transactionName":"NQQGYUZWDUNSVUMPWQxOIkBaVBdZXFgYBVkMFQFbQEQGQkVTRUhbCwUAWVFAAkJWDGQSVxYIB3ZbWRdVXUJkA0QUBBYbREUMU1ZFRDlEBxARUEdD","applicationID":"3415687","errorBeacon":"bam.nr-data.net","applicationTime":48}</script></body>
 </html>

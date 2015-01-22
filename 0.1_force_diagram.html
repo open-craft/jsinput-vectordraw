@@ -221,21 +221,18 @@
 
                 grabVectorProp = function (vObject) {
                     if (vObject) {
-                        var x1 = board.elementsByName[vObject.name].point1.X();
-                        var y1 = board.elementsByName[vObject.name].point1.Y();
-                        var x2 = board.elementsByName[vObject.name].point2.X();
-                        var y2 = board.elementsByName[vObject.name].point2.Y();
-                        var angle = board.elementsByName[vObject.name].getAngle();
+                        var boardObject = board.elementsByName[vObject.name];
+                        var angle = boardObject.getAngle();
                         angle = 180.0 * angle / Math.PI;
                         if (angle < 0) {
                             angle = 360.0 + angle;
                         }
-                        var length = board.elementsByName[vObject.name].L();
+                        var length = boardObject.L();
 
                         return {
                             'name': vObject.name,
-                            'tail': [x1, y1],
-                            'tip': [x2, y2],
+                            'tail': [boardObject.point1.X(), boardObject.point1.Y()],
+                            'tip': [boardObject.point2.X(), boardObject.point2.Y()],
                             'length': length,
                             'angle': angle
                         }

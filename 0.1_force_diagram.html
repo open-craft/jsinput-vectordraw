@@ -96,12 +96,8 @@
                 bindMouseEvents(board);
 
                 function initBoard() {
-                    global.vectors = {
-                        N: undefined,
-                        g: undefined,
-                        f: undefined
-                    };
-                    temp_vector = undefined;
+                    global.vectors = { N: null, g: null, f: null};
+                    global.temp_vector = null;
                     global.drawing = false;
 
                     var bboxlimits = [-10, 10, 10, -10];
@@ -113,10 +109,17 @@
 
                     var im = board.create(
                         'image',
-                        ["/c4x/edX/JS101/asset/simple_car.png",
-                        [bboxlimits[0], bboxlimits[3]], [(bboxlimits[1] - bboxlimits[0]), 1.2 * (bboxlimits[3] - bboxlimits[2])]],
+                        [
+                            "/c4x/edX/JS101/asset/simple_car.png",
+                            [bboxlimits[0], bboxlimits[3]], [(bboxlimits[1] - bboxlimits[0]), 1.2 * (bboxlimits[3] - bboxlimits[2])]
+                        ],
                         {fixed: true}
                     );
+
+                    var boardImages = document.querySelectorAll("#jxgbox1 image");
+                    for (var i=0; i < boardImages.length; i++) {
+                        boardImages[i].addEventListener('mousedown', function(e) {e.preventDefault(); });
+                    }
 
                     global.cm = board.create(
                         'point',
@@ -172,8 +175,7 @@
                     }
                     var coords = getMouseCoords(e);
 
-                    global.temp_vector.point2.X = coords.usrCoords[1];
-                    global.temp_vector.point2.Y = coords.usrCoords[2];
+                    global.temp_vector.point2.moveTo(coords.usrCoords);
                 }
 
                 function boardUp(e) {

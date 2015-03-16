@@ -1,0 +1,129 @@
+<problem display_name="webGLDemo">
+<script type="loncapa/python">
+<![CDATA[
+import json
+def vglcfn(e, ans):
+  '''
+  Grading a force diagram.
+  '''
+
+  ### Helpers
+  def compare_lengths(v1, v2):
+      return abs(v1.length - v2.length) < 1.00
+
+  def check_angle(v1, expected, tolerance=1.0):
+      return abs(v1.angle - expected) < tolerance
+
+  ### Checks ###
+
+  def check_all_vectors_present(vectors, points):
+      if not ('N' in vectors and 'g' in vectors and 'f' in vectors):
+          return 'You need to use all three vectors.'
+
+  def check_compare_normal_and_gravity_lengths(vectors, points):
+      normal = vectors['N']
+      gravity = vectors['g']
+      if not compare_lengths(normal, gravity):
+          return 'Normal Force and Gravitational Force should be similar lengths.'
+
+  def check_normal_angle(vectors, points):
+      normal = vectors['N']
+      if not check_angle(normal, 90, tolerance=2.0):
+          return 'The angle of the Normal Force is incorrect. Your angle: %.1f' % normal.angle
+
+  def check_gravity_angle(vectors, points):
+      gravity = vectors['g']
+      if not check_angle(gravity, 270.0, tolerance=2.0):
+          return 'The angle of the Gravitational Force is incorrect. Your angle: %.1f' % gravity.angle
+
+  def check_friction_angle(vectors, points):
+      friction = vectors['f']
+      if not check_angle(friction, 180.0, tolerance=2.0):
+          return 'The angle of the Frictional Force is incorrect. Your angle: %.1f' % friction.angle
+
+  def check_starts_at_center_of_mass(vectors, points, tolerance=0.25):
+      cm = points['cm']
+      for vec in vectors.values():
+          dist = math.hypot(cm.x - vec.tail.x, cm.y - vec.tail.y)
+          if dist > tolerance:
+              return 'One or more of your vectors do not start from the center of mass.'
+
+  checks = [
+      check_all_vectors_present,
+      check_compare_normal_and_gravity_lengths,
+      check_normal_angle,
+      check_gravity_angle,
+      check_friction_angle,
+      check_starts_at_center_of_mass,
+  ]
+  success_message = 'Good job!'
+
+
+  ### Python API - Do not edit after this line ####
+
+  class Point(object):
+      def __init__(self, x, y):
+          self.x = x
+          self.y = y
+
+  class Vector(object):
+      def __init__(self, x1, y1, x2, y2):
+          self.tail = Point(x1, y1)
+          self.tip = Point(x2, y2)
+          self.length = math.hypot(x2 - x1, y2 - y1)
+          angle = math.degrees(math.atan2(y2 - y1, x2 - x1))
+          if angle < 0:
+              angle += 360
+          self.angle = angle
+
+  class Grader(object):
+      def __init__(self, answer, checks, success_message='Test passed'):
+          self.answer = answer
+          self.checks = checks
+          self.success_message = success_message
+
+      def grade(self):
+          for check in self.checks:
+              result = check(self._get_vectors(), self._get_points())
+              if result:
+                  return {'ok': False, 'msg': result}
+          return {'ok': True, 'msg': self.success_message}
+
+      def _get_vectors(self):
+          vectors = {}
+          for name, props in self.answer['vectors'].iteritems():
+              tail = props['tail']
+              tip = props['tip']
+              vectors[name] = Vector(tail[0], tail[1], tip[0], tip[1])
+          return vectors
+
+      def _get_points(self):
+          points = {}
+          for name, props in self.answer['points'].iteritems():
+              coords = props['coords']
+              points[name] = Point(coords[0], coords[1])
+          return points
+
+  answer = json.loads(json.loads(ans)['answer'])
+  grader = Grader(answer, checks, success_message)
+
+  return grader.grade()
+]]>
+</script>
+<p>
+A car is moving in the positive x-direction and is slowing down. Draw the appropriate free-body diagram for this situation. You can create a draggable vector by clicking one of the buttons to the right of the interactive canvas.
+</p>
+<p>
+  <i>Be sure that the "tail" of each vector starts at the center of mass.</i> Also try to break this - I have error messages for most possible situations.
+</p>
+<customresponse cfn="vglcfn">
+  <jsinput gradefn="getInput"
+    get_statefn="getState"
+    set_statefn="setState"
+    initial_state='{}'
+    width="750"
+    height="450"
+    html_file="/static/api-example.html"
+    />
+</customresponse>
+</problem>

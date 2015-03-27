@@ -30,16 +30,25 @@ var VectorDraw = function(element_id, settings) {
 VectorDraw.prototype.template = _.template([
     '<div class="jxgboard" style="width:<%= width %>px; height:<%= height %>px;" />',
     '<div class="menu">',
-    '    <div>',
+    '    <div class="controls">',
     '        <select>',
     '        <% vectors.forEach(function(vec, idx) { %>',
     '            <option value="<%= idx %>"><%= vec.description %></option>',
     '        <% }) %>',
     '        </select>',
     '        <button class="add-vector">Add Selected Force</button>',
-    '        <button class="reset">Clear All</button>',
-    '        <button class="undo">Undo</button>',
-    '        <button class="redo">Redo</button>',
+    '        <button class="reset">Reset</button>',
+    '        <button class="undo" title="Undo"><span class="fa fa-undo" /></button>',
+    '        <button class="redo" title="redo"><span class="fa fa-repeat" /></button>',
+    '    </div>',
+    '    <div class="vector-properties">',
+    '      <h3>Vector Properties</h3>',
+    '      <div>',
+    '        length: <span class="value">3.4</span>',
+    '      </div>',
+    '      <div>',
+    '        angle: <span class="value">74&deg;</span>',
+    '      </div>',
     '    </div>',
     '</div>'
 ].join('\n'));
@@ -103,15 +112,18 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
     }
 
     var tail = this.board.create('point', coords[0], {
-        size: 1,
+        size: 0.5,
         name: vec.name,
         withLabel: false
     });
     var tip = this.board.create('point', coords[1], {
-        size: 2,
+        size: 1,
         name: vec.name
     });
-    var arrow = this.board.create('arrow', [tail, tip], {name: vec.name});
+    var arrow = this.board.create('arrow', [tail, tip], {
+        name: vec.name,
+        strokeWidth: 3
+    });
 
     // Disable the <option> element corresponding to vector.
     var option = this.element.find('.menu option[value=' + idx + ']');

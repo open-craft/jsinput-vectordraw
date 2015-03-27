@@ -8,7 +8,8 @@ var VectorDraw = function(element_id, settings) {
         background: null,
         bounding_box: [-10, 10, 10, -10],
         vectors: [],
-        points: []
+        points: [],
+        expected_result: {}
     };
 
     this.board = null;
@@ -306,10 +307,24 @@ var setState = function(serialized) {
 
 var getInput = function() {
     var input = vectordraw.getState();
-    var points = {};
-    vectordraw.settings.points.forEach(function(point) {
-        points[point.name] = point;
+
+    // Transform the expected_result setting into a list of checks.
+    var checks = [];
+
+    _.each(vectordraw.settings.expected_result, function(answer, name) {
+        checks.push({vector: name, check: 'presence'});
+        ['tail', 'tip', 'length', 'angle'].forEach(function(prop) {
+            if (prop in answer) {
+                var check = {vector: name, check: prop, expected: answer[prop]};
+                if (prop + '_tolerance' in answer) {
+                    check.tolerance = answer[prop + '_tolerance'];
+                }
+                checks.push(check);
+            }
+        });
     });
-    input.points = points;
+
+    input.checks = checks;
+
     return JSON.stringify(input);
 };

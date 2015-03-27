@@ -25,7 +25,12 @@
               vectors: [{name: 'N', description: 'Normal force - N', coords: [[2, 2], [7, 8]], render: true},
                         {name: 'f', description: 'Friction - f', coords: [[-2, -5], [-1, -3]], render: false},
                         {name: 'g', description: 'Gravity - g', tail: [0, 1.5], length: 5, angle: -75, render: false}],
-              points: [{name: 'cm', coords: [0, 1.5]}]
+              points: [{name: 'cm', coords: [0, 1.5]}],
+              expected_result: {
+                 'N': {angle: 90, angle_tolerance: 2, tail: [0, 1.5], tail_tolerance: 0.25},
+                 'g': {angle: 270, angle_tolerance: 2, tail: [0, 1.5], tail_tolerance: 0.25},
+                 'f': {angle: 180, angle_tolerance: 2, tail: [0, 1.5], tail_tolerance: 0.25}
+              }
           };
         </script>
 

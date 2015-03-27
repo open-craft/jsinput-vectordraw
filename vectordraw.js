@@ -98,10 +98,25 @@ VectorDraw.prototype.createBoard = function() {
     this.board.on('up', this.onBoardUp.bind(this));
 };
 
+VectorDraw.prototype.getVectorCoordinates = function(vec) {
+    var coords = vec.coords;
+    if (!coords) {
+        var tail = vec.tail || [0, 0];
+        var length = 'length' in vec ? vec.length : 5;
+        var angle = 'angle' in vec ? vec.angle : 30;
+        var radians = angle * Math.PI / 180;
+        var tip = [
+            tail[0] + Math.cos(radians) * length,
+            tail[1] + Math.sin(radians) * length
+        ];
+        coords = [tail, tip];
+    }
+    return coords;
+};
+
 VectorDraw.prototype.renderVector = function(idx, coords) {
     var vec = this.settings.vectors[idx];
-
-    coords = coords || vec.coords || [[0, 0], [3, 3]];
+    coords = coords || this.getVectorCoordinates(vec);
 
     // If this vector is already rendered, only update its coordinates.
     var board_object = this.board.elementsByName[vec.name];

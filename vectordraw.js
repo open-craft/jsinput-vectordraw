@@ -67,7 +67,8 @@ VectorDraw.prototype.render = function() {
 };
 
 VectorDraw.prototype.createBoard = function() {
-    var id = this.element.find('.jxgboard').prop('id');
+    var id = this.element.find('.jxgboard').prop('id'),
+        self = this;
 
     this.board = JXG.JSXGraph.initBoard(id, {
         boundingbox: this.settings.bounding_box,
@@ -75,9 +76,26 @@ VectorDraw.prototype.createBoard = function() {
         showCopyright: false
     });
 
+    function getImageRatio(bg, callback) {
+        $('<img/>').attr('src', bg.src).load(function(){
+            //technically it's inverse of ratio, but we need it to calculate height
+            var ratio = this.height / this.width;
+            callback(bg, ratio);
+        });
+    }
+
+    function drawBackground(bg, ratio) {
+        var height = (bg.height) ? bg.height : bg.width * ratio;
+        self.board.create('image', [bg.src, bg.coords, [bg.width, height]], {fixed: true});
+    }
+
     if (this.settings.background) {
-        var bg = this.settings.background;
-        this.board.create('image', [bg.src, bg.coords, [bg.width, bg.height]], {fixed: true});
+        if (this.settings.background.height) {
+            drawBackground(this.settings.background);
+        }
+        else {
+            getImageRatio(this.settings.background, drawBackground);
+        }
     }
 
     this.settings.points.forEach(function(point) {

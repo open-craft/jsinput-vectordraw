@@ -137,6 +137,18 @@ VectorDraw.prototype.getVectorCoordinates = function(vec) {
     return coords;
 };
 
+VectorDraw.prototype.getVectorStyle = function(vec) {
+    //width, color, size of control point, label (which should be a JSXGraph option)
+    var default_style = {
+        pointSize: 1,
+        width: 4,
+        color: "blue",
+        label: ""
+    };
+
+    return _.extend(default_style, vec.style);
+};
+
 VectorDraw.prototype.renderVector = function(idx, coords) {
     var vec = this.settings.vectors[idx];
     coords = coords || this.getVectorCoordinates(vec);
@@ -149,19 +161,23 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
         return;
     }
 
+    var style = this.getVectorStyle(vec);
+
     var tail = this.board.create('point', coords[0], {
-        size: 0.5,
+        size: style.pointSize,
         name: vec.name,
         withLabel: false,
         fixed: true
     });
     var tip = this.board.create('point', coords[1], {
-        size: 1,
-        name: vec.name
+        size: style.pointSize,
+        name: style.label || vec.name,
+        withLabel: true
     });
     var arrow = this.board.create('arrow', [tail, tip], {
         name: vec.name,
-        strokeWidth: 4
+        strokeWidth: style.width,
+        strokeColor: style.color
     });
 
     tip.label.setAttribute({fontsize: 18});
@@ -237,6 +253,9 @@ VectorDraw.prototype.getVectorForObject = function(obj) {
     if (obj instanceof JXG.Line) {
         return obj;
     }
+    if (obj instanceof JXG.Text) {
+        return this.getVectorForObject(obj.element);
+    }
     if (obj instanceof JXG.Point) {
         return _.find(obj.descendants, function (d) { return (d instanceof JXG.Line); });
     }
@@ -252,14 +271,15 @@ VectorDraw.prototype.updateVectorProperties = function(vector) {
         angle = Math.atan2(y2-y1, x2-x1)/Math.PI*180;
     if (angle < 0)
         angle += 360;
-    $('.vector-prop-name .value', this.element).html(vector.name);
+    $('.vector-prop-name .value', this.element).html(vector.point2.name); // labels are stored as point2 names
     $('.vector-prop-length .value', this.element).html(length.toFixed(2));
     $('.vector-prop-angle .value', this.element).html(angle.toFixed(2));
 };
 
 VectorDraw.prototype.canCreateVectorOnTopOf = function(el) {
     // If the user is trying to drag the arrow of an existing vector, we should not create a new vector.
-    if (el instanceof JXG.Line) {
+    // If the user is trying to drag the arrow on top of text label, we should not create a new vector.
+    if (el instanceof JXG.Line || el instanceof JXG.Text) {
         return false;
     }
     // If this is tip/tail of a vector, it's going to have a descendant Line - we should not create a new vector.

@@ -14,6 +14,7 @@ var VectorDraw = function(element_id, settings) {
 
     this.board = null;
     this.dragged_vector = null;
+    this.drawMode = false;
     this.history_stack = {undo: [], redo: []};
     this.settings = _.extend(default_settings, settings);
     this.element = $('#' + element_id);
@@ -44,11 +45,14 @@ VectorDraw.prototype.template = _.template([
     '    </div>',
     '    <div class="vector-properties">',
     '      <h3>Vector Properties</h3>',
-    '      <div>',
-    '        length: <span class="value">3.4</span>',
+    '      <div class="vector-prop-name">',
+    '        name: <span class="value vector-prop-bold">-</span>',
     '      </div>',
-    '      <div>',
-    '        angle: <span class="value">74&deg;</span>',
+    '      <div class="vector-prop-length">',
+    '        length: <span class="value">-</span>',
+    '      </div>',
+    '      <div class="vector-prop-angle">',
+    '        angle: <span class="value">-</span>&deg;',
     '      </div>',
     '    </div>',
     '</div>'
@@ -163,8 +167,9 @@ VectorDraw.prototype.removeVector = function(idx) {
 
 VectorDraw.prototype.addVectorFromList = function() {
     this.pushHistory();
-    var idx = this.element.find('.menu select').val();
-    this.renderVector(idx);
+    var idx = this.element.find('.menu select').val(),
+        vector = this.renderVector(idx);
+    this.updateVectorProperties(vector);
 };
 
 VectorDraw.prototype.reset = function() {
@@ -209,54 +214,82 @@ VectorDraw.prototype.getMouseCoords = function(evt) {
     return new JXG.Coords(JXG.COORDS_BY_SCREEN, [dx, dy], this.board);
 };
 
-VectorDraw.prototype.canCreateVectorAtPoint = function(coords) {
-    for (var eid in this.board.objects) {
-        var el = this.board.objects[eid];
-        if (el.hasPoint(coords.scrCoords[1], coords.scrCoords[2])) {
-            // If the user is trying to drag the arrow of an existing vector,
-            // we should not create a new vector.
-            if (el instanceof JXG.Line) {
-                return false;
-            }
-            // If the user is trying to draw the tip or tail of existing vector,
-            // we should not crate a new vector.
-            if (el instanceof JXG.Point) {
-                // If this is tip/tail of a vector, it's going to have a descendant Line
-                // in which case we should not create a new vector.
-                // If it doesn't have a descendant Line, it's just a point from settings.points,
-                // which means creating a new vector is allowed.
-                if (_.some(el.descendants, function(d) { return (d instanceof JXG.Line); })) {
-                    return false;
-                }
-            }
-        }
+VectorDraw.prototype.getVectorForObject = function(obj) {
+    if (obj instanceof JXG.Line) {
+        return obj;
     }
-    return true;
+    if (obj instanceof JXG.Point) {
+        return _.find(obj.descendants, function (d) { return (d instanceof JXG.Line); });
+    }
+    return null;
+};
+
+VectorDraw.prototype.updateVectorProperties = function(vector) {
+    var x1 = vector.point1.X(),
+        y1 = vector.point1.Y(),
+        x2 = vector.point2.X(),
+        y2 = vector.point2.Y();
+    var length = Math.sqrt(Math.pow(x2-x1, 2) + Math.pow(y2-y1, 2)),
+        angle = Math.atan2(y2-y1, x2-x1)/Math.PI*180;
+    if (angle < 0)
+        angle += 360;
+    $('.vector-prop-name .value', this.element).html(vector.name);
+    $('.vector-prop-length .value', this.element).html(length.toFixed(2));
+    $('.vector-prop-angle .value', this.element).html(angle.toFixed(2));
+};
+
+VectorDraw.prototype.canCreateVectorOnTopOf = function(el) {
+    // If the user is trying to drag the arrow of an existing vector, we should not create a new vector.
+    if (el instanceof JXG.Line) {
+        return false;
+    }
+    // If this is tip/tail of a vector, it's going to have a descendant Line - we should not create a new vector.
+    // If it doesn't have a descendant Line, it's a point from settings.points - creating a new vector is allowed.
+    return !((el instanceof JXG.Point) && (this.getVectorForObject(el)));
+};
+
+VectorDraw.prototype.objectsUnderMouse = function(coords) {
+    var filter = function(el) {
+        return !(el instanceof JXG.Image) && el.hasPoint(coords.scrCoords[1], coords.scrCoords[2]);
+    };
+    return _.filter(_.values(this.board.objects), filter);
 };
 
 VectorDraw.prototype.onBoardDown = function(evt) {
     this.pushHistory();
     // Can't create a vector if none is selected from the list.
-    var vec_idx = this.element.find('.menu select').val();
-    if (!vec_idx) {
-        return;
-    }
     var coords = this.getMouseCoords(evt);
-    if (this.canCreateVectorAtPoint(coords)) {
+    var targetObjects = this.objectsUnderMouse(coords);
+    if (!targetObjects || _.all(targetObjects, this.canCreateVectorOnTopOf.bind(this))) {
+        var vec_idx = this.element.find('.menu select').val();
+        if (!vec_idx) {
+            return;
+        }
+
         var point_coords = [coords.usrCoords[1], coords.usrCoords[2]];
         this.dragged_vector = this.renderVector(vec_idx, [point_coords, point_coords]);
+        this.drawMode = true;
+    }
+    else {
+        var vectorPoint = _.find(targetObjects, this.getVectorForObject.bind(this));
+        this.dragged_vector = this.getVectorForObject(vectorPoint);
+        this.updateVectorProperties(this.dragged_vector)
+        this.drawMode = false;
     }
 };
 
 VectorDraw.prototype.onBoardMove = function(evt) {
-    if (!this.dragged_vector) {
-        return;
+    if (this.drawMode) {
+        var coords = this.getMouseCoords(evt);
+        this.dragged_vector.point2.moveTo(coords.usrCoords);
     }
-    var coords = this.getMouseCoords(evt);
-    this.dragged_vector.point2.moveTo(coords.usrCoords);
+    if (this.dragged_vector) {
+        this.updateVectorProperties(this.dragged_vector);
+    }
 };
 
 VectorDraw.prototype.onBoardUp = function(evt) {
+    this.drawMode = false;
     this.dragged_vector = null;
 };
 

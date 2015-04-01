@@ -134,7 +134,8 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
     var tail = this.board.create('point', coords[0], {
         size: 0.5,
         name: vec.name,
-        withLabel: false
+        withLabel: false,
+        fixed: true
     });
     var tip = this.board.create('point', coords[1], {
         size: 1,
@@ -245,7 +246,11 @@ VectorDraw.prototype.canCreateVectorOnTopOf = function(el) {
     }
     // If this is tip/tail of a vector, it's going to have a descendant Line - we should not create a new vector.
     // If it doesn't have a descendant Line, it's a point from settings.points - creating a new vector is allowed.
-    return !((el instanceof JXG.Point) && (this.getVectorForObject(el)));
+    if (el instanceof JXG.Point) {
+        var vector = this.getVectorForObject(el);
+        return !vector || vector.point1 == el;
+    }
+    return true;
 };
 
 VectorDraw.prototype.objectsUnderMouse = function(coords) {
@@ -258,23 +263,22 @@ VectorDraw.prototype.objectsUnderMouse = function(coords) {
 VectorDraw.prototype.onBoardDown = function(evt) {
     this.pushHistory();
     // Can't create a vector if none is selected from the list.
+    var vec_idx = this.element.find('.menu select').val();
     var coords = this.getMouseCoords(evt);
     var targetObjects = this.objectsUnderMouse(coords);
-    if (!targetObjects || _.all(targetObjects, this.canCreateVectorOnTopOf.bind(this))) {
-        var vec_idx = this.element.find('.menu select').val();
-        if (!vec_idx) {
-            return;
-        }
-
+    if (vec_idx && (!targetObjects || _.all(targetObjects, this.canCreateVectorOnTopOf.bind(this)))) {
+        this.drawMode = true;
         var point_coords = [coords.usrCoords[1], coords.usrCoords[2]];
         this.dragged_vector = this.renderVector(vec_idx, [point_coords, point_coords]);
-        this.drawMode = true;
     }
     else {
-        var vectorPoint = _.find(targetObjects, this.getVectorForObject.bind(this));
-        this.dragged_vector = this.getVectorForObject(vectorPoint);
-        this.updateVectorProperties(this.dragged_vector)
         this.drawMode = false;
+        var vectorPoint = _.find(targetObjects, this.getVectorForObject.bind(this));
+        if (vectorPoint) {
+            this.dragged_vector = this.getVectorForObject(vectorPoint);
+            this.dragged_vector.point1.setProperty({fixed: false});
+            this.updateVectorProperties(this.dragged_vector);
+        }
     }
 };
 
@@ -290,7 +294,10 @@ VectorDraw.prototype.onBoardMove = function(evt) {
 
 VectorDraw.prototype.onBoardUp = function(evt) {
     this.drawMode = false;
-    this.dragged_vector = null;
+    if (this.dragged_vector) {
+        this.dragged_vector.point1.setProperty({fixed: true});
+        this.dragged_vector = null;
+    }
 };
 
 VectorDraw.prototype.getVectorCoords = function(name) {

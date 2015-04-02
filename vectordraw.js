@@ -138,8 +138,10 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
     });
     var arrow = this.board.create('arrow', [tail, tip], {
         name: vec.name,
-        strokeWidth: 3
+        strokeWidth: 4
     });
+
+    tip.label.setAttribute({fontsize: 18});
 
     // Disable the <option> element corresponding to vector.
     var option = this.element.find('.menu option[value=' + idx + ']');

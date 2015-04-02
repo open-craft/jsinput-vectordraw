@@ -24,7 +24,7 @@ body {
 .menu .controls select {
     width: 160px;
     margin-bottom: 8px;
-    font-size: 16px;
+    font-size: 18px;
 }
 
 .menu .controls button {
@@ -63,11 +63,11 @@ body {
 .menu .vector-properties {
     padding: 10px;
     border: 1px solid #1f628d;
-    font-size: 14px;
+    font-size: 16px;
     line-height: 1.25;
 }
 
 .menu .vector-properties h3 {
-    font-size: 14px;
+    font-size: 16px;
     margin: 0 0 5px;
 }

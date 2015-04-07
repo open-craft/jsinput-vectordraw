@@ -16,9 +16,11 @@
         <script type="text/javascript">
           // Background image, vectors, and points are defined below.
           var vectordraw_settings = {
+              width: 550,
+              height: 450,
+              bounding_box_size: 8,
               background: {
                   src: '/c4x/edX/JS101/asset/simple_car.png',
-                  coords: [-10, -10],
                   width: 20
               },
               vectors: [
@@ -32,11 +34,11 @@
                     },
                     {name: 'g', description: 'Gravity - g', tail: [0, 1.5], length: 5, angle: -75, render: false}
               ],
-              points: [{name: 'cm', coords: [0, 1.5]}],
+              points: [{name: 'cm', coords: [0, -0.75]}],
               expected_result: {
-                 'N': {angle: 90, angle_tolerance: 2, tail: [0, 1.5], tail_tolerance: 0.25},
-                 'g': {angle: 270, angle_tolerance: 2, tail: [0, 1.5], tail_tolerance: 0.25},
-                 'f': {angle: 180, angle_tolerance: 2, tail: [0, 1.5], tail_tolerance: 0.25}
+                 'N': {angle: 90, angle_tolerance: 2, tail: [0, -0.75], tail_tolerance: 0.25},
+                 'g': {angle: 270, angle_tolerance: 2, tail: [0, -0.75], tail_tolerance: 0.25},
+                 'f': {angle: 180, angle_tolerance: 2, tail: [0, -0.75], tail_tolerance: 0.25}
               }
           };
         </script>

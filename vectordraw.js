@@ -2,14 +2,15 @@
 
 var VectorDraw = function(element_id, settings) {
     var default_settings = {
-        width: 500,
-        height: 350,
+        width: 550,
+        height: 400,
         axis: false,
         background: null,
-        bounding_box: [-10, 10, 10, -10],
+        bounding_box_size: 10,
         vectors: [],
         points: [],
-        expected_result: {}
+        expected_result: {},
+        show_navigation: false
     };
 
     this.board = null;
@@ -17,6 +18,9 @@ var VectorDraw = function(element_id, settings) {
     this.drawMode = false;
     this.history_stack = {undo: [], redo: []};
     this.settings = _.extend(default_settings, settings);
+    var width_scale = this.settings.width / this.settings.height,
+        box_size = this.settings.bounding_box_size;
+    this.settings.bounding_box = [-box_size*width_scale, box_size, box_size*width_scale, -box_size]
     this.element = $('#' + element_id);
 
     this.element.on('click', '.reset', this.reset.bind(this));
@@ -71,9 +75,11 @@ VectorDraw.prototype.createBoard = function() {
         self = this;
 
     this.board = JXG.JSXGraph.initBoard(id, {
+        keepaspectratio: true,
         boundingbox: this.settings.bounding_box,
         axis: this.settings.axis,
-        showCopyright: false
+        showCopyright: false,
+        showNavigation: this.settings.show_navigation
     });
 
     function getImageRatio(bg, callback) {
@@ -86,7 +92,8 @@ VectorDraw.prototype.createBoard = function() {
 
     function drawBackground(bg, ratio) {
         var height = (bg.height) ? bg.height : bg.width * ratio;
-        self.board.create('image', [bg.src, bg.coords, [bg.width, height]], {fixed: true});
+        var coords = (bg.coords) ? bg.coords : [-bg.width/2, -height/2];
+        self.board.create('image', [bg.src, coords, [bg.width, height]], {fixed: true});
     }
 
     if (this.settings.background) {

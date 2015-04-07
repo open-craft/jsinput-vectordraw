@@ -8,7 +8,8 @@ var VectorDraw = function(element_id, settings) {
         background: null,
         bounding_box: [-10, 10, 10, -10],
         vectors: [],
-        points: []
+        points: [],
+        expected_result: {}
     };
 
     this.board = null;
@@ -30,16 +31,25 @@ var VectorDraw = function(element_id, settings) {
 VectorDraw.prototype.template = _.template([
     '<div class="jxgboard" style="width:<%= width %>px; height:<%= height %>px;" />',
     '<div class="menu">',
-    '    <div>',
+    '    <div class="controls">',
     '        <select>',
     '        <% vectors.forEach(function(vec, idx) { %>',
     '            <option value="<%= idx %>"><%= vec.description %></option>',
     '        <% }) %>',
     '        </select>',
     '        <button class="add-vector">Add Selected Force</button>',
-    '        <button class="reset">Clear All</button>',
-    '        <button class="undo">Undo</button>',
-    '        <button class="redo">Redo</button>',
+    '        <button class="reset">Reset</button>',
+    '        <button class="undo" title="Undo"><span class="fa fa-undo" /></button>',
+    '        <button class="redo" title="redo"><span class="fa fa-repeat" /></button>',
+    '    </div>',
+    '    <div class="vector-properties">',
+    '      <h3>Vector Properties</h3>',
+    '      <div>',
+    '        length: <span class="value">3.4</span>',
+    '      </div>',
+    '      <div>',
+    '        angle: <span class="value">74&deg;</span>',
+    '      </div>',
     '    </div>',
     '</div>'
 ].join('\n'));
@@ -89,10 +99,25 @@ VectorDraw.prototype.createBoard = function() {
     this.board.on('up', this.onBoardUp.bind(this));
 };
 
+VectorDraw.prototype.getVectorCoordinates = function(vec) {
+    var coords = vec.coords;
+    if (!coords) {
+        var tail = vec.tail || [0, 0];
+        var length = 'length' in vec ? vec.length : 5;
+        var angle = 'angle' in vec ? vec.angle : 30;
+        var radians = angle * Math.PI / 180;
+        var tip = [
+            tail[0] + Math.cos(radians) * length,
+            tail[1] + Math.sin(radians) * length
+        ];
+        coords = [tail, tip];
+    }
+    return coords;
+};
+
 VectorDraw.prototype.renderVector = function(idx, coords) {
     var vec = this.settings.vectors[idx];
-
-    coords = coords || vec.coords || [[0, 0], [3, 3]];
+    coords = coords || this.getVectorCoordinates(vec);
 
     // If this vector is already rendered, only update its coordinates.
     var board_object = this.board.elementsByName[vec.name];
@@ -103,15 +128,20 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
     }
 
     var tail = this.board.create('point', coords[0], {
-        size: 1,
+        size: 0.5,
         name: vec.name,
         withLabel: false
     });
     var tip = this.board.create('point', coords[1], {
-        size: 2,
+        size: 1,
         name: vec.name
     });
-    var arrow = this.board.create('arrow', [tail, tip], {name: vec.name});
+    var arrow = this.board.create('arrow', [tail, tip], {
+        name: vec.name,
+        strokeWidth: 4
+    });
+
+    tip.label.setAttribute({fontsize: 18});
 
     // Disable the <option> element corresponding to vector.
     var option = this.element.find('.menu option[value=' + idx + ']');
@@ -279,10 +309,24 @@ var setState = function(serialized) {
 
 var getInput = function() {
     var input = vectordraw.getState();
-    var points = {};
-    vectordraw.settings.points.forEach(function(point) {
-        points[point.name] = point;
+
+    // Transform the expected_result setting into a list of checks.
+    var checks = [];
+
+    _.each(vectordraw.settings.expected_result, function(answer, name) {
+        checks.push({vector: name, check: 'presence'});
+        ['tail', 'tip', 'length', 'angle'].forEach(function(prop) {
+            if (prop in answer) {
+                var check = {vector: name, check: prop, expected: answer[prop]};
+                if (prop + '_tolerance' in answer) {
+                    check.tolerance = answer[prop + '_tolerance'];
+                }
+                checks.push(check);
+            }
+        });
     });
-    input.points = points;
+
+    input.checks = checks;
+
     return JSON.stringify(input);
 };

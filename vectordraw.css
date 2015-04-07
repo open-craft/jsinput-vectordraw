@@ -1,6 +1,9 @@
 body {
+    box-sizing: border-box;
+    font-family: Arial,sans-serif;
     margin: 10px;
 }
+
 
 .jxgboard {
     float: left;
@@ -9,22 +12,28 @@ body {
 
 .menu {
     float: left;
-    width: 170px;
+    width: 160px;
     margin-left: 15px;
 }
 
-.menu select {
-    width: 160px;
-    margin-bottom: 8px;
+.menu .controls {
+    margin-bottom: 20px;
+    font-size: 0;
 }
 
-.menu button {
+.menu .controls select {
+    width: 160px;
+    margin-bottom: 8px;
+    font-size: 18px;
+}
+
+.menu .controls button {
+    display: inline-block;
     background-color: #3498db;
     border-radius: 5px;
     box-shadow: 0 1px 3px #666;
-    font-family: Arial, sans-serif;
     color: #fff;
-    font-size: 15px;
+    font-size: 14px;
     padding: 5px 10px 5px 10px;
     margin: 4px 0;
     border: 2px solid #1f628d;
@@ -32,7 +41,7 @@ body {
     width: 160px;
 }
 
-.menu button:hover {
+.menu .controls button:hover {
     background: #3cb0fd;
     background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
     background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
@@ -42,7 +51,23 @@ body {
     text-decoration: none;
 }
 
-.menu button.undo,
-.menu button.redo {
+.menu .controls button.undo,
+.menu .controls button.redo {
     width: 78px;
+}
+
+.menu .controls button.undo {
+    margin-right: 4px;
+}
+
+.menu .vector-properties {
+    padding: 10px;
+    border: 1px solid #1f628d;
+    font-size: 16px;
+    line-height: 1.25;
+}
+
+.menu .vector-properties h3 {
+    font-size: 16px;
+    margin: 0 0 5px;
 }

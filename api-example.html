@@ -16,20 +16,29 @@
         <script type="text/javascript">
           // Background image, vectors, and points are defined below.
           var vectordraw_settings = {
+              width: 550,
+              height: 450,
+              bounding_box_size: 8,
               background: {
                   src: '/c4x/edX/JS101/asset/simple_car.png',
-                  coords: [-10, -10],
-                  width: 20,
-                  height: 24
+                  width: 20
               },
-              vectors: [{name: 'N', description: 'Normal force - N', coords: [[2, 2], [7, 8]], render: true},
-                        {name: 'f', description: 'Friction - f', coords: [[-2, -5], [-1, -3]], render: false},
-                        {name: 'g', description: 'Gravity - g', tail: [0, 1.5], length: 5, angle: -75, render: false}],
-              points: [{name: 'cm', coords: [0, 1.5]}],
+              vectors: [
+                    {
+                        name: 'N', description: 'Normal force - N', coords: [[2, 2], [7, 8]], render: true,
+                        style: {pointSize:2, label: "Norm", color:"red", width:2}
+                    },
+                    {
+                        name: 'f', description: 'Friction - f', coords: [[-2, -5], [-1, -3]], render: false,
+                        style: {pointSize:3, label: "Fric", color:"#cccccc", width:1.5}
+                    },
+                    {name: 'g', description: 'Gravity - g', tail: [0, 1.5], length: 5, angle: -75, render: false}
+              ],
+              points: [{name: 'cm', coords: [0, -0.75]}],
               expected_result: {
-                 'N': {angle: 90, angle_tolerance: 2, tail: [0, 1.5], tail_tolerance: 0.25},
-                 'g': {angle: 270, angle_tolerance: 2, tail: [0, 1.5], tail_tolerance: 0.25},
-                 'f': {angle: 180, angle_tolerance: 2, tail: [0, 1.5], tail_tolerance: 0.25}
+                 'N': {angle: 90, angle_tolerance: 2, tail: [0, -0.75], tail_tolerance: 0.25},
+                 'g': {angle: 270, angle_tolerance: 2, tail: [0, -0.75], tail_tolerance: 0.25},
+                 'f': {angle: 180, angle_tolerance: 2, tail: [0, -0.75], tail_tolerance: 0.25}
               }
           };
         </script>

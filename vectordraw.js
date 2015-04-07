@@ -2,20 +2,25 @@
 
 var VectorDraw = function(element_id, settings) {
     var default_settings = {
-        width: 500,
-        height: 350,
+        width: 550,
+        height: 400,
         axis: false,
         background: null,
-        bounding_box: [-10, 10, 10, -10],
+        bounding_box_size: 10,
         vectors: [],
         points: [],
-        expected_result: {}
+        expected_result: {},
+        show_navigation: false
     };
 
     this.board = null;
     this.dragged_vector = null;
+    this.drawMode = false;
     this.history_stack = {undo: [], redo: []};
     this.settings = _.extend(default_settings, settings);
+    var width_scale = this.settings.width / this.settings.height,
+        box_size = this.settings.bounding_box_size;
+    this.settings.bounding_box = [-box_size*width_scale, box_size, box_size*width_scale, -box_size]
     this.element = $('#' + element_id);
 
     this.element.on('click', '.reset', this.reset.bind(this));
@@ -44,11 +49,14 @@ VectorDraw.prototype.template = _.template([
     '    </div>',
     '    <div class="vector-properties">',
     '      <h3>Vector Properties</h3>',
-    '      <div>',
-    '        length: <span class="value">3.4</span>',
+    '      <div class="vector-prop-name">',
+    '        name: <span class="value vector-prop-bold">-</span>',
     '      </div>',
-    '      <div>',
-    '        angle: <span class="value">74&deg;</span>',
+    '      <div class="vector-prop-length">',
+    '        length: <span class="value">-</span>',
+    '      </div>',
+    '      <div class="vector-prop-angle">',
+    '        angle: <span class="value">-</span>&deg;',
     '      </div>',
     '    </div>',
     '</div>'
@@ -63,17 +71,38 @@ VectorDraw.prototype.render = function() {
 };
 
 VectorDraw.prototype.createBoard = function() {
-    var id = this.element.find('.jxgboard').prop('id');
+    var id = this.element.find('.jxgboard').prop('id'),
+        self = this;
 
     this.board = JXG.JSXGraph.initBoard(id, {
+        keepaspectratio: true,
         boundingbox: this.settings.bounding_box,
         axis: this.settings.axis,
-        showCopyright: false
+        showCopyright: false,
+        showNavigation: this.settings.show_navigation
     });
 
+    function getImageRatio(bg, callback) {
+        $('<img/>').attr('src', bg.src).load(function(){
+            //technically it's inverse of ratio, but we need it to calculate height
+            var ratio = this.height / this.width;
+            callback(bg, ratio);
+        });
+    }
+
+    function drawBackground(bg, ratio) {
+        var height = (bg.height) ? bg.height : bg.width * ratio;
+        var coords = (bg.coords) ? bg.coords : [-bg.width/2, -height/2];
+        self.board.create('image', [bg.src, coords, [bg.width, height]], {fixed: true});
+    }
+
     if (this.settings.background) {
-        var bg = this.settings.background;
-        this.board.create('image', [bg.src, bg.coords, [bg.width, bg.height]], {fixed: true});
+        if (this.settings.background.height) {
+            drawBackground(this.settings.background);
+        }
+        else {
+            getImageRatio(this.settings.background, drawBackground);
+        }
     }
 
     this.settings.points.forEach(function(point) {
@@ -115,6 +144,18 @@ VectorDraw.prototype.getVectorCoordinates = function(vec) {
     return coords;
 };
 
+VectorDraw.prototype.getVectorStyle = function(vec) {
+    //width, color, size of control point, label (which should be a JSXGraph option)
+    var default_style = {
+        pointSize: 1,
+        width: 4,
+        color: "blue",
+        label: ""
+    };
+
+    return _.extend(default_style, vec.style);
+};
+
 VectorDraw.prototype.renderVector = function(idx, coords) {
     var vec = this.settings.vectors[idx];
     coords = coords || this.getVectorCoordinates(vec);
@@ -127,18 +168,23 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
         return;
     }
 
+    var style = this.getVectorStyle(vec);
+
     var tail = this.board.create('point', coords[0], {
-        size: 0.5,
+        size: style.pointSize,
         name: vec.name,
-        withLabel: false
+        withLabel: false,
+        fixed: true
     });
     var tip = this.board.create('point', coords[1], {
-        size: 1,
-        name: vec.name
+        size: style.pointSize,
+        name: style.label || vec.name,
+        withLabel: true
     });
     var arrow = this.board.create('arrow', [tail, tip], {
         name: vec.name,
-        strokeWidth: 4
+        strokeWidth: style.width,
+        strokeColor: style.color
     });
 
     tip.label.setAttribute({fontsize: 18});
@@ -163,8 +209,9 @@ VectorDraw.prototype.removeVector = function(idx) {
 
 VectorDraw.prototype.addVectorFromList = function() {
     this.pushHistory();
-    var idx = this.element.find('.menu select').val();
-    this.renderVector(idx);
+    var idx = this.element.find('.menu select').val(),
+        vector = this.renderVector(idx);
+    this.updateVectorProperties(vector);
 };
 
 VectorDraw.prototype.reset = function() {
@@ -209,55 +256,93 @@ VectorDraw.prototype.getMouseCoords = function(evt) {
     return new JXG.Coords(JXG.COORDS_BY_SCREEN, [dx, dy], this.board);
 };
 
-VectorDraw.prototype.canCreateVectorAtPoint = function(coords) {
-    for (var eid in this.board.objects) {
-        var el = this.board.objects[eid];
-        if (el.hasPoint(coords.scrCoords[1], coords.scrCoords[2])) {
-            // If the user is trying to drag the arrow of an existing vector,
-            // we should not create a new vector.
-            if (el instanceof JXG.Line) {
-                return false;
-            }
-            // If the user is trying to draw the tip or tail of existing vector,
-            // we should not crate a new vector.
-            if (el instanceof JXG.Point) {
-                // If this is tip/tail of a vector, it's going to have a descendant Line
-                // in which case we should not create a new vector.
-                // If it doesn't have a descendant Line, it's just a point from settings.points,
-                // which means creating a new vector is allowed.
-                if (_.some(el.descendants, function(d) { return (d instanceof JXG.Line); })) {
-                    return false;
-                }
-            }
-        }
+VectorDraw.prototype.getVectorForObject = function(obj) {
+    if (obj instanceof JXG.Line) {
+        return obj;
+    }
+    if (obj instanceof JXG.Text) {
+        return this.getVectorForObject(obj.element);
+    }
+    if (obj instanceof JXG.Point) {
+        return _.find(obj.descendants, function (d) { return (d instanceof JXG.Line); });
+    }
+    return null;
+};
+
+VectorDraw.prototype.updateVectorProperties = function(vector) {
+    var x1 = vector.point1.X(),
+        y1 = vector.point1.Y(),
+        x2 = vector.point2.X(),
+        y2 = vector.point2.Y();
+    var length = Math.sqrt(Math.pow(x2-x1, 2) + Math.pow(y2-y1, 2)),
+        angle = Math.atan2(y2-y1, x2-x1)/Math.PI*180;
+    if (angle < 0)
+        angle += 360;
+    $('.vector-prop-name .value', this.element).html(vector.point2.name); // labels are stored as point2 names
+    $('.vector-prop-length .value', this.element).html(length.toFixed(2));
+    $('.vector-prop-angle .value', this.element).html(angle.toFixed(2));
+};
+
+VectorDraw.prototype.canCreateVectorOnTopOf = function(el) {
+    // If the user is trying to drag the arrow of an existing vector, we should not create a new vector.
+    // If the user is trying to drag the arrow on top of text label, we should not create a new vector.
+    if (el instanceof JXG.Line || el instanceof JXG.Text) {
+        return false;
+    }
+    // If this is tip/tail of a vector, it's going to have a descendant Line - we should not create a new vector.
+    // If it doesn't have a descendant Line, it's a point from settings.points - creating a new vector is allowed.
+    if (el instanceof JXG.Point) {
+        var vector = this.getVectorForObject(el);
+        return !vector || vector.point1 == el;
     }
     return true;
+};
+
+VectorDraw.prototype.objectsUnderMouse = function(coords) {
+    var filter = function(el) {
+        return !(el instanceof JXG.Image) && el.hasPoint(coords.scrCoords[1], coords.scrCoords[2]);
+    };
+    return _.filter(_.values(this.board.objects), filter);
 };
 
 VectorDraw.prototype.onBoardDown = function(evt) {
     this.pushHistory();
     // Can't create a vector if none is selected from the list.
     var vec_idx = this.element.find('.menu select').val();
-    if (!vec_idx) {
-        return;
-    }
     var coords = this.getMouseCoords(evt);
-    if (this.canCreateVectorAtPoint(coords)) {
+    var targetObjects = this.objectsUnderMouse(coords);
+    if (vec_idx && (!targetObjects || _.all(targetObjects, this.canCreateVectorOnTopOf.bind(this)))) {
+        this.drawMode = true;
         var point_coords = [coords.usrCoords[1], coords.usrCoords[2]];
         this.dragged_vector = this.renderVector(vec_idx, [point_coords, point_coords]);
+    }
+    else {
+        this.drawMode = false;
+        var vectorPoint = _.find(targetObjects, this.getVectorForObject.bind(this));
+        if (vectorPoint) {
+            this.dragged_vector = this.getVectorForObject(vectorPoint);
+            this.dragged_vector.point1.setProperty({fixed: false});
+            this.updateVectorProperties(this.dragged_vector);
+        }
     }
 };
 
 VectorDraw.prototype.onBoardMove = function(evt) {
-    if (!this.dragged_vector) {
-        return;
+    if (this.drawMode) {
+        var coords = this.getMouseCoords(evt);
+        this.dragged_vector.point2.moveTo(coords.usrCoords);
     }
-    var coords = this.getMouseCoords(evt);
-    this.dragged_vector.point2.moveTo(coords.usrCoords);
+    if (this.dragged_vector) {
+        this.updateVectorProperties(this.dragged_vector);
+    }
 };
 
 VectorDraw.prototype.onBoardUp = function(evt) {
-    this.dragged_vector = null;
+    this.drawMode = false;
+    if (this.dragged_vector) {
+        this.dragged_vector.point1.setProperty({fixed: true});
+        this.dragged_vector = null;
+    }
 };
 
 VectorDraw.prototype.getVectorCoords = function(name) {

@@ -2,7 +2,7 @@
 <html>
     <head>
         <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
-        <link href="/c4x/edX/JS101/asset/vectordraw.css" rel="stylesheet" type="text/css" />   <!-- Default styles can be overriden here -->
+        <link href="/c4x/DavidsonNext/Ann101/asset/vectordraw.css" rel="stylesheet" type="text/css" />        <!-- Default styles can be overriden here -->
         <style type="text/css">
             .jxgboard {
                 box-shadow: 0 1px 3px #666;
@@ -19,25 +19,19 @@
               height: 450,
               bounding_box_size: 8,
               background: {
-                  src: '/c4x/edX/JS101/asset/simple_car.png',
+                  src: '/c4x/DavidsonNext/Ann101/asset/box_on_incline.png',
                   width: 20
               },
               vectors: [
-                    {
-                        name: 'N', description: 'Normal force - N', coords: [[2, 2], [7, 8]], render: true,
-                        style: {pointSize:2, label: "Norm", color:"red", width:2}
-                    },
-                    {
-                        name: 'f', description: 'Friction - f', coords: [[-2, -5], [-1, -3]], render: false,
-                        style: {pointSize:3, label: "Fric", color:"#cccccc", width:1.5}
-                    },
+                    {name: 'N', description: 'Normal force - N', tail: [2, 2], length: 4, angle: 45, render: true},
+                    {name: 'f', description: 'Friction - f', coords: [[-2, -5], [-1, -3]], render: false},
                     {name: 'g', description: 'Gravity - g', tail: [0, 1.5], length: 5, angle: -75, render: false}
               ],
-              points: [{name: 'cm', coords: [0, -0.75]}],
+              points: [{name: 'cm', coords: [-0.6, 0.4]}],
               expected_result: {
-                 'N': {angle: 90, angle_tolerance: 2, tail: [0, -0.75], tail_tolerance: 0.25},
-                 'g': {angle: 270, angle_tolerance: 2, tail: [0, -0.75], tail_tolerance: 0.25},
-                 'f': {angle: 180, angle_tolerance: 2, tail: [0, -0.75], tail_tolerance: 0.25}
+                 'N': {angle: 110, angle_tolerance: 2, tail: [-0.6, 0.4], tail_tolerance: 0.5},
+                 'g': {angle: 270, angle_tolerance: 2, tail: [-0.6, 0.4], tail_tolerance: 0.5},
+                 'f': {angle: 20, angle_tolerance: 2, tail: [-0.6, 0.4], tail_tolerance: 0.5}
               }
           };
         </script>
@@ -45,6 +39,6 @@
         <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.2/underscore-min.js"></script>
         <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
         <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jsxgraph/0.98/jsxgraphcore.js"></script>
-        <script type="text/javascript" src="/c4x/edX/JS101/asset/vectordraw.js"></script>
+        <script type="text/javascript" src="/c4x/DavidsonNext/Ann101/asset/vectordraw.js"></script>
     </body>
 </html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+        <link href="/c4x/DavidsonNext/Ann101/asset/vectordraw.css" rel="stylesheet" type="text/css" />   <!-- Default styles can be overriden here -->
+        <style type="text/css">
+            .jxgboard {
+                box-shadow: 0 1px 3px #666;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="vectordraw" />
+        <script type="text/javascript">
+          // Background image, vectors, and points are defined below.
+          var vectordraw_settings = {
+              width: 550,
+              height: 450,
+              bounding_box_size: 8,
+              background: {
+                  src: '/c4x/DavidsonNext/Ann101/asset/energyLevels.png',
+                  width: 20
+              },
+              vectors: [
+                    {name: 't<sub>1</sub>', description: 'Transition #1', tail: [0, 1.5], length: 5, angle: -75, render: false},
+                    {name: 't<sub>2</sub>', description: 'Transition #2', tail: [0, 1.5], length: 5, angle: -75, render: false},
+                    {name: 't<sub>3</sub>', description: 'Transition #3', tail: [0, 1.5], length: 5, angle: -75, render: false},
+                    {name: 't<sub>4</sub>', description: 'Transition #3', tail: [0, 1.5], length: 5, angle: -75, render: false},
+                    {name: 't<sub>5</sub>', description: 'Transition #3', tail: [0, 1.5], length: 5, angle: -75, render: false},
+                    {name: 't<sub>6</sub>', description: 'Transition #3', tail: [0, 1.5], length: 5, angle: -75, render: false}
+              ],
+              points: [{name: 'cm', coords: [-20, -20], label:'n31'}],
+              expected_result: {
+                 't<sub>1</sub>': {angle: 270, angle_tolerance: 2, tail: [0, -0.75], tail_tolerance: 50.0},
+                 't<sub>2</sub>': {angle: 270, angle_tolerance: 2, tail: [0, -0.75], tail_tolerance: 50.0},
+                 't<sub>3</sub>': {angle: 270, angle_tolerance: 2, tail: [0, -0.75], tail_tolerance: 50.0}
+              }
+          };
+        </script>
+
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.2/underscore-min.js"></script>
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jsxgraph/0.98/jsxgraphcore.js"></script>
+        <script type="text/javascript" src="/c4x/DavidsonNext/Ann101/asset/vectordraw.js"></script>
+    </body>
+</html>

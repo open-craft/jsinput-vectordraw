@@ -91,7 +91,7 @@ def vglcfn(e, ans):
 ]]>
 </script>
 <p>
-Draw a vector whose angle is $a degrees relative to the positive x direction. <i>Note,
+Draw a vector whose angle is 31 degrees relative to the positive x direction. <i>Note,
 be sure that your vector starts from the center of the protractor, and ends at the outsideedge with the appropriate angle.</i>
 </p>
 <customresponse cfn="vglcfn">

@@ -122,7 +122,7 @@ The image below shows the flight path of a procectile. At points A, B, and C, dr
     set_statefn="setState"
     initial_state='{}'
     width="750"
-    height="450"
+    height="480"
     html_file="/static/3_flightPath.html"
     />
 </customresponse>

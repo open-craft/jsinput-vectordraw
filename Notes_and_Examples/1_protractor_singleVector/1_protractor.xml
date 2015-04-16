@@ -100,7 +100,7 @@ be sure that your vector starts from the center of the protractor, and ends at t
     set_statefn="setState"
     initial_state='{}'
     width="800"
-    height="450"
+    height="480"
     html_file="/static/1_protractor.html"
     />
 </customresponse>

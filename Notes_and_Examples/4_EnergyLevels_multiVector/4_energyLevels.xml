@@ -120,7 +120,7 @@ When an electron moves from the n=1 level to the n=3 level, there are multiple p
     initial_state='{}'
     width="800"
     height="500"
-    html_file="/static/api-example.html"
+    html_file="/static/4_energyLevels.html"
     />
 </customresponse>
 </problem>

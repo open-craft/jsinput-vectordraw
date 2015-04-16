@@ -4,18 +4,11 @@
 import json
 def vglcfn(e, ans):
   '''
-  Grading a force diagram.
+  Vector grading.
   '''
-  ### Custom Checks ###
-  def check_compare_normal_and_gravity_lengths(vectors, points):
-      normal = vectors['N']
-      gravity = vectors['g']
-      if abs(normal.length - gravity.length) < 1.0:
-          return 'Normal Force and Gravitational Force should be similar lengths.'
-  custom_checks = {
-    'compare_normal_and_gravity_lengths': check_compare_normal_and_gravity_lengths
-  }
+  custom_checks = {}
   success_message = 'Good job!'
+
   ### Python API - Do not edit after this line ####
   ## Built-in check functions
   def check_presence(check, vectors):

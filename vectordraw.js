@@ -112,7 +112,8 @@ VectorDraw.prototype.createBoard = function() {
             name: point.name,
             withLabel: false,
             strokeColor: 'pink',
-            fillColor: 'pink'
+            fillColor: 'pink',
+            showInfoBox: false
         };
         this.board.create('point', point.coords, opts);
     }, this);
@@ -174,12 +175,14 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
         size: style.pointSize,
         name: vec.name,
         withLabel: false,
-        fixed: true
+        fixed: true,
+        showInfoBox: false
     });
     var tip = this.board.create('point', coords[1], {
         size: style.pointSize,
         name: style.label || vec.name,
-        withLabel: true
+        withLabel: true,
+        showInfoBox: false
     });
     var arrow = this.board.create('arrow', [tail, tip], {
         name: vec.name,

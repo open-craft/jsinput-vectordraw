@@ -402,7 +402,8 @@ var getInput = function() {
 
     _.each(vectordraw.settings.expected_result, function(answer, name) {
         checks.push({vector: name, check: 'presence'});
-        ['tail', 'tip', 'length', 'angle'].forEach(function(prop) {
+        ['tail', 'tail_x', 'tail_y', 'tip', 'tip_x', 'tip_y',
+         'length', 'angle'].forEach(function(prop) {
             if (prop in answer) {
                 var check = {vector: name, check: prop, expected: answer[prop]};
                 if (prop + '_tolerance' in answer) {

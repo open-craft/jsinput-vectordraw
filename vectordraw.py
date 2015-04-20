@@ -25,6 +25,31 @@ def check_tip(check, vectors):
     if dist > tolerance:
         return 'Vector {} does not end at correct point.'.format(vec.name)
 
+def _check_coordinate(check, coord):
+    tolerance = check.get('tolerance', 1.0)
+    expected = check['expected']
+    return abs(expected - coord) > tolerance
+
+def check_tail_x(check, vectors):
+    vec = vectors[check['vector']]
+    if _check_coordinate(check, vec.tail.x):
+        return 'Vector {} does not start at correct point.'.format(vec.name)
+
+def check_tail_y(check, vectors):
+    vec = vectors[check['vector']]
+    if _check_coordinate(check, vec.tail.y):
+        return 'Vector {} does not start at correct point.'.format(vec.name)
+
+def check_tip_x(check, vectors):
+    vec = vectors[check['vector']]
+    if _check_coordinate(check, vec.tip.x):
+        return 'Vector {} does not end at correct point.'.format(vec.name)
+
+def check_tip_y(check, vectors):
+    vec = vectors[check['vector']]
+    if _check_coordinate(check, vec.tip.y):
+        return 'Vector {} does not tip at correct point.'.format(vec.name)
+
 def check_length(check, vectors):
     vec = vectors[check['vector']]
     tolerance = check.get('tolerance', 1.0)
@@ -66,6 +91,10 @@ class Grader(object):
         'presence': check_presence,
         'tail': check_tail,
         'tip': check_tip,
+        'tail_x': check_tail_x,
+        'tail_y': check_tail_y,
+        'tip_x': check_tip_x,
+        'tip_y': check_tip_y,
         'length': check_length,
         'angle': check_angle,
     }

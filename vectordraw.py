@@ -33,8 +33,15 @@ def check_length(check, vectors):
 
 def check_angle(check, vectors):
     vec = vectors[check['vector']]
+    expected = check['expected']
     tolerance = check.get('tolerance', 2.0)
-    if abs(vec.angle - check['expected']) > tolerance:
+    upper_limit = (expected + tolerance) % 360
+    lower_limit = (expected - tolerance) % 360
+    if upper_limit < lower_limit:  # Can happen when upper_limit=2, lower_limit=-358, for example.
+        valid = vec.angle <= upper_limit or vec.angle >= lower_limit
+    else:
+        valid = vec.angle >= lower_limit and vec.angle <= upper_limit
+    if not valid:
         return 'The angle of {} is incorrect. Your angle: {:.1f}'.format(vec.name, vec.angle)
 
 

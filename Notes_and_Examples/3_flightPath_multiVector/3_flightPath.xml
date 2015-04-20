@@ -4,32 +4,16 @@
 import json
 def vglcfn(e, ans):
   '''
-  Grading a force diagram.
+  Vector grading.
   '''
-
-  ### Custom Checks ###
-
-  def check_compare_normal_and_gravity_lengths(vectors, points):
-      normal = vectors['N']
-      gravity = vectors['g']
-      if abs(normal.length - gravity.length) < 1.0:
-          return 'Normal Force and Gravitational Force should be similar lengths.'
-
-  custom_checks = {
-    'compare_normal_and_gravity_lengths': check_compare_normal_and_gravity_lengths
-  }
+  custom_checks = {}
   success_message = 'Good job!'
 
-
   ### Python API - Do not edit after this line ####
-
-
   ## Built-in check functions
-
   def check_presence(check, vectors):
       if check['vector'] not in vectors:
           return 'You need to use the {} vector.'.format(check['vector'])
-
   def check_tail(check, vectors):
       vec = vectors[check['vector']]
       tolerance = check.get('tolerance', 1.0)
@@ -37,7 +21,6 @@ def vglcfn(e, ans):
       dist = math.hypot(expected[0] - vec.tail.x, expected[1] - vec.tail.y)
       if dist > tolerance:
           return 'Vector {} does not start at correct point.'.format(vec.name)
-
   def check_tip(check, vectors):
       vec = vectors[check['vector']]
       tolerance = check.get('tolerance', 1.0)
@@ -45,13 +28,11 @@ def vglcfn(e, ans):
       dist = math.hypot(expected[0] - vec.tip.x, expected[1] - vec.tip.y)
       if dist > tolerance:
           return 'Vector {} does not end at correct point.'.format(vec.name)
-
   def check_length(check, vectors):
       vec = vectors[check['vector']]
       tolerance = check.get('tolerance', 1.0)
       if abs(vec.length - check['expected']) > tolerance:
           return 'The length of {} is incorrect. Your length: {:.1f}'.format(vec.name, vec.length)
-
   def check_angle(check, vectors):
       vec = vectors[check['vector']]
       expected = check['expected']
@@ -64,13 +45,10 @@ def vglcfn(e, ans):
           valid = vec.angle >= lower_limit and vec.angle <= upper_limit
       if not valid:
           return 'The angle of {} is incorrect. Your angle: {:.1f}'.format(vec.name, vec.angle)
-
-
   class Point(object):
       def __init__(self, x, y):
           self.x = x
           self.y = y
-
   class Vector(object):
       def __init__(self, name, x1, y1, x2, y2):
           self.name = name
@@ -81,7 +59,6 @@ def vglcfn(e, ans):
           if angle < 0:
               angle += 360
           self.angle = angle
-
   class Grader(object):
       check_registry = {
           'presence': check_presence,
@@ -90,21 +67,17 @@ def vglcfn(e, ans):
           'length': check_length,
           'angle': check_angle,
       }
-
       def __init__(self, answer, custom_checks, success_message='Test passed'):
           self.answer = answer
           self.check_registry.update(custom_checks)
           self.success_message = success_message
-
       def grade(self):
           for check in self.answer['checks']:
               check_fn = self.check_registry[check['check']]
               result = check_fn(check, self._get_vectors())
               if result:
                   return {'ok': False, 'msg': result}
-
           return {'ok': True, 'msg': self.success_message}
-
       def _get_vectors(self):
           vectors = {}
           for name, props in self.answer['vectors'].iteritems():
@@ -112,27 +85,25 @@ def vglcfn(e, ans):
               tip = props['tip']
               vectors[name] = Vector(name, tail[0], tail[1], tip[0], tip[1])
           return vectors
-
   answer = json.loads(json.loads(ans)['answer'])
   grader = Grader(answer, custom_checks, success_message)
-
   return grader.grade()
 ]]>
 </script>
 <p>
-A car is moving in the positive x-direction and is slowing down. Draw the appropriate free-body diagram for this situation. You can create a draggable vector by clicking one of the buttons to the right of the interactive canvas.
+The image below shows the flight path of a procectile. At points A, B, and C, draw the appropriatly labeled velocity vector. 
 </p>
 <p>
-  <i>Be sure that the "tail" of each vector starts at the center of mass.</i> Also try to break this - I have error messages for most possible situations.
+  <i>Be sure that the "tail" of each vector starts as close as possible to points A, B, and C.</i>
 </p>
 <customresponse cfn="vglcfn">
   <jsinput gradefn="getInput"
     get_statefn="getState"
     set_statefn="setState"
     initial_state='{}'
-    width="800"
-    height="450"
-    html_file="/static/api-example.html"
+    width="750"
+    height="480"
+    html_file="/static/3_flightPath.html"
     />
 </customresponse>
 </problem>

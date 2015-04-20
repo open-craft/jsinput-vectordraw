@@ -52,18 +52,18 @@ def vglcfn(e, ans):
       if abs(vec.length - check['expected']) > tolerance:
           return 'The length of {} is incorrect. Your length: {:.1f}'.format(vec.name, vec.length)
 
-  def check_angle(check, vectors):
-      vec = vectors[check['vector']]
-      expected = check['expected']
-      tolerance = check.get('tolerance', 2.0)
-      upper_limit = (expected + tolerance) % 360
-      lower_limit = (expected - tolerance) % 360
-      if upper_limit < lower_limit:  # Can happen when upper_limit=2, lower_limit=-358, for example.
-          valid = vec.angle <= upper_limit or vec.angle >= lower_limit
-      else:
-          valid = vec.angle >= lower_limit and vec.angle <= upper_limit
-      if not valid:
-          return 'The angle of {} is incorrect. Your angle: {:.1f}'.format(vec.name, vec.angle)
+def check_angle(check, vectors):
+    vec = vectors[check['vector']]
+    expected = check['expected']
+    tolerance = check.get('tolerance', 2.0)
+    upper_limit = (expected + tolerance) % 360
+    lower_limit = (expected - tolerance) % 360
+    if upper_limit < lower_limit:  # Can happen when upper_limit=2, lower_limit=-358, for example.
+        valid = vec.angle <= upper_limit or vec.angle >= lower_limit
+    else:
+        valid = vec.angle >= lower_limit and vec.angle <= upper_limit
+    if not valid:
+        return 'The angle of {} is incorrect. Your angle: {:.1f}'.format(vec.name, vec.angle)
 
 
   class Point(object):
@@ -120,10 +120,10 @@ def vglcfn(e, ans):
 ]]>
 </script>
 <p>
-A car is moving in the positive x-direction and is slowing down. Draw the appropriate free-body diagram for this situation. You can create a draggable vector by clicking one of the buttons to the right of the interactive canvas.
+A box remains stationary on an inclined plane at an angle of 20 degrees with respect to the x-axis. Draw all appropriate vectors that define the force diagram for this sytem.
 </p>
 <p>
-  <i>Be sure that the "tail" of each vector starts at the center of mass.</i> Also try to break this - I have error messages for most possible situations.
+  <i>Be sure that the "tail" of each vector starts at the center of mass of the box.</i>
 </p>
 <customresponse cfn="vglcfn">
   <jsinput gradefn="getInput"
@@ -131,8 +131,8 @@ A car is moving in the positive x-direction and is slowing down. Draw the approp
     set_statefn="setState"
     initial_state='{}'
     width="800"
-    height="450"
-    html_file="/static/api-example.html"
+    height="500"
+    html_file="/static/2_boxIncline.html"
     />
 </customresponse>
 </problem>

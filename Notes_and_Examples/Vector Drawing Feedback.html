@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 6.0.5 (451190)"/><meta name="altitude" content="650"/><meta name="author" content="dseaton@gmail.com"/><meta name="created" content="2015-04-10 13:57:17 +0000"/><meta name="latitude" content="35.59030412420272"/><meta name="longitude" content="-82.55253425622912"/><meta name="source" content="desktop.mac"/><meta name="updated" content="2015-04-11 15:52:00 +0000"/><title>Vector Drawing Feedback</title></head><body>
+<div>Current steps to setup a problem.</div>
+<div>Example: Atomic Transitions</div>
+<div><a href="https://docs.google.com/document/d/14Jiy2shpi2c6xk4mF1VtYbQ5E6I04jYXe3T1aVE33wo/edit">https://docs.google.com/document/d/14Jiy2shpi2c6xk4mF1VtYbQ5E6I04jYXe3T1aVE33wo/edit</a><br/></div>
+<div><img src="21F27FBC-7F03-47AC-8E3C-F039D6FA8383.png" height="369" width="523"/></div>
+<div><br/></div>
+<div><br/></div>
+<div>1. Create, crop, and upload image. (20 min)</div>
+<div><br/></div>
+<div>2. Upload vectordraw.js and vectordraw.css (already done - but let’s say 3 min for a novice).</div>
+<div><br/></div>
+<div>3. Copy and edit template from api-example.html (total ~25 min )</div>
+<ul>
+<li>Change file paths from “edX/JS101” to “DavidsonNext/Ann101"</li>
+<li>Create new list of vectors</li>
+<li>Create list of expected vector properties</li>
+<li>Issue: Determine utility of “points”. In this example, not needed, but I cannot comment it out without breaking the interactive.</li>
+<li>Issue: Turn off highlighting of labels. Some cases will need to draw vector where label overlaps.</li>
+</ul>
+<div><br/></div>
+<div>4. Fiddle with “tail locations” for grading purposes. (5 min).</div>
+<ul>
+<li>Questions: For all other prototypes, this is important. Need vectors to come from a particular point. However, the energy level problem does not require that. The answer to this question largely depends on the number of vectors they draw (3). For other prototypes, I had to slowly move points around the image.</li>
+<li>For Energy Levels, just hid the point outside the view box and ignored for now.</li>
+</ul>
+<div><br/></div>
+<div>5. Working with the grader (~ 15 min - stopped because need for different kind of grading)</div>
+<ul>
+<li>Adjust expected properties.</li>
+<li>Set tail tolerance to 50.0 so that it wouldn’t impact grading. But can’t currently grade tail tolerance in x and y direction.</li>
+<li>What are the grading criteria here?</li>
+<li style="display:inline;list-style:none;">
+<ul>
+<li>3 possible transitions</li>
+<li style="display:inline;list-style:none;">
+<ul>
+<li>Teacher will want to allow more than three vectors as a distractor.</li>
+<li>How do we grade unlabeled vectors?</li>
+</ul>
+</li>
+<li>Each vector has a starting level, and an ending level. </li>
+<li style="display:inline;list-style:none;">
+<ul>
+<li>Grade angle (270), length (distance between levels), starting “y” location (no need for x).</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div><br/></div>
+<div>6. Need documentation for “custom checks in grader”. </div>
+</body></html>

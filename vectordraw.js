@@ -187,7 +187,7 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
         strokeColor: style.color
     });
 
-    tip.label.setAttribute({fontsize: 18});
+    tip.label.setAttribute({fontsize: 18, highlightStrokeColor: 'black'});
 
     // Disable the <option> element corresponding to vector.
     var option = this.element.find('.menu option[value=' + idx + ']');
@@ -285,8 +285,7 @@ VectorDraw.prototype.updateVectorProperties = function(vector) {
 
 VectorDraw.prototype.canCreateVectorOnTopOf = function(el) {
     // If the user is trying to drag the arrow of an existing vector, we should not create a new vector.
-    // If the user is trying to drag the arrow on top of text label, we should not create a new vector.
-    if (el instanceof JXG.Line || el instanceof JXG.Text) {
+    if (el instanceof JXG.Line) {
         return false;
     }
     // If this is tip/tail of a vector, it's going to have a descendant Line - we should not create a new vector.

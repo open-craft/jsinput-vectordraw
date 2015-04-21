@@ -9,12 +9,39 @@ def vglcfn(e, ans):
 
   ### Custom Checks ###
 
-  def checkNumberVectors(vectors, points):
-      if len(vectors) == 3:
-          return 'Correct number of vectors.'
+  def check_vector_count(check, vectors):
+      if len(vectors) != check['expected']:
+          return 'Number of vectors is not correct.'
+
+  def check_vector_angles(check, vectors):
+      for vec_name in vectors:
+          angle_check = {
+              'vector': vec_name,
+              'expected': check['expected'],
+              'tolerance': check['tolerance']
+          }
+          result = check_angle(angle_check, vectors)
+          if result is not None:
+              return result
+
+  def check_energy_vector(check, vectors):
+      vector_found = False
+      for vec_name in vectors:
+          if check_tail_y({'vector': vec_name, 'expected': check['tail_y']}, vectors):
+              continue
+          elif check_length({'vector': vec_name, 'expected': check['length']}, vectors):
+              continue
+          else:
+              vector_found = True
+              break
+      if not vector_found:
+          return 'Some of the transition vectors are not correct.'
+
 
   custom_checks = {
-    'checkNumberVectors': checkNumberVectors
+      'vector_count': check_vector_count,
+      'vector_angles': check_vector_angles,
+      'energy_vector': check_energy_vector
   }
   success_message = 'Good job!'
 

@@ -7,10 +7,11 @@ var VectorDraw = function(element_id, settings) {
         axis: false,
         background: null,
         bounding_box_size: 10,
+        show_navigation: false,
         vectors: [],
         points: [],
         expected_result: {},
-        show_navigation: false
+        custom_checks: []
     };
 
     this.board = null;
@@ -414,7 +415,7 @@ var getInput = function() {
         });
     });
 
-    input.checks = checks;
+    input.checks = checks.concat(vectordraw.settings.custom_checks);
 
     return JSON.stringify(input);
 };

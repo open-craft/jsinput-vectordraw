@@ -66,7 +66,7 @@ def vglcfn(e, ans):
       if _check_coordinate(check, vec.tip.x):
           return 'Vector {} does not end at correct point.'.format(vec.name)
 
-  def check_tip_x_y(check, vectors):
+  def check_tip_y(check, vectors):
       vec = vectors[check['vector']]
       if _check_coordinate(check, vec.tip.y):
           return 'Vector {} does not tip at correct point.'.format(vec.name)

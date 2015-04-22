@@ -160,7 +160,7 @@ A car is moving in the positive x-direction and is slowing down. Draw the approp
     set_statefn="setState"
     initial_state='{}'
     width="800"
-    height="450"
+    height="480"
     html_file="/static/api-example.html"
     />
 </customresponse>

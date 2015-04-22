@@ -58,15 +58,16 @@ def check_length(check, vectors):
 
 def check_angle(check, vectors):
     vec = vectors[check['vector']]
-    expected = check['expected']
     tolerance = check.get('tolerance', 2.0)
-    upper_limit = (expected + tolerance) % 360
-    lower_limit = (expected - tolerance) % 360
-    if upper_limit < lower_limit:  # Can happen when upper_limit=2, lower_limit=-358, for example.
-        valid = vec.angle <= upper_limit or vec.angle >= lower_limit
-    else:
-        valid = vec.angle >= lower_limit and vec.angle <= upper_limit
-    if not valid:
+    expected = math.radians(check['expected'])
+    # Calculate angle between vec and identity vector with expected angle
+    # using the formula:
+    # angle = acos((A . B) / len(A)*len(B))
+    x = vec.tip.x - vec.tail.x
+    y = vec.tip.y - vec.tail.y
+    dot_product = x * math.cos(expected) + y * math.sin(expected)
+    angle = math.degrees(math.acos(dot_product / vec.length))
+    if abs(angle) > tolerance:
         return 'The angle of {} is incorrect. Your angle: {:.1f}'.format(vec.name, vec.angle)
 
 

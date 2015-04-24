@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+        <link href="/c4x/DavidsonNext/Ann101/asset/vectordraw.css" rel="stylesheet" type="text/css" />
+    </head>
+
+    <body>
+        <div id="vectordraw" />
+        <script type="text/javascript">
+          // Background image, vectors, and points are defined below.
+          var vectordraw_settings = {
+              width: 550,
+              height: 450,
+              bounding_box_size: 8,
+              background: {
+                  src: '/c4x/DavidsonNext/Ann101/asset/imageCircuitDirection.png',
+                  width: 13
+              },
+              vectors: [
+                    {name: 'I<sub>1</sub>', description: 'Current through R<sub>1</sub>', coords: [[4, 4], [7, 7]], render: false},
+                    {name: 'I<sub>2</sub>', description: 'Current through R<sub>2</sub>', coords: [[3, 3], [6, 6]], render: false},
+              ],
+              points: [{name: 'cm1', coords: [-0.2,-0.25]},
+                       {name: 'cm2', coords: [-0.2,-5.3]}],
+              expected_result: {
+                 'I<sub>1</sub>': {angle: 0, angle_tolerance: 5, tail: [-0.2,-0.25], tail_tolerance: 1.0},
+                 'I<sub>2</sub>': {angle: 0, angle_tolerance: 5, tail: [-0.2,-5.3], tail_tolerance: 1.0},
+              }
+          };
+        </script>
+
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.2/underscore-min.js"></script>
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jsxgraph/0.98/jsxgraphcore.js"></script>
+        <script type="text/javascript" src="/c4x/DavidsonNext/Ann101/asset/vectordraw.js"></script>
+    </body>
+</html>

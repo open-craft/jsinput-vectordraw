@@ -3,12 +3,6 @@
     <head>
         <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
         <link href="/c4x/DavidsonNext/Ann101/asset/vectordraw.css" rel="stylesheet" type="text/css" />
-        <!-- Default styles can be overriden here -->
-        <style type="text/css">
-            .jxgboard {
-                box-shadow: 0 1px 3px #666;
-            }
-        </style>
     </head>
 
     <body>
@@ -26,13 +20,13 @@
               vectors: [
                     {name: 'A', description: 'Velocity Point A', coords: [[4, 4], [7, 7]], render: false},
                     {name: 'B', description: 'Veolicity Point B', coords: [[3, 3], [6, 6]], render: false},
-                    {name: 'C', description: 'Velocity Point C', coords: [[2, 2], [5, 5]], render: false},
+                    {name: 'C', description: 'Velocity Point C', coords: [[2, 2], [5, 5]], render: false}
               ],
               //points: [{name: 'cm', coords: [-7.8, -8.2]}],
               expected_result: {
-                 'A': {angle: 54, angle_tolerance: 1, tail: [-7.8, -8.2], tail_tolerance: 0.25},
-                 'B': {angle: 0, angle_tolerance: 1, tail: [0.65, -2.16], tail_tolerance: 0.25},
-                 'C': {angle: 312, angle_tolerance: 1, tail: [6.8, -5.2], tail_tolerance: 0.25},
+                 'A': {angle: 54, angle_tolerance: 3, tail: [-7.8, -4.1], tail_tolerance: 0.25},
+                 'B': {angle: 0, angle_tolerance: 3, tail: [0.65, 1.85], tail_tolerance: 0.25},
+                 'C': {angle: 312, angle_tolerance: 3, tail: [6.9, -1.2], tail_tolerance: 0.25}
               }
           };
         </script>

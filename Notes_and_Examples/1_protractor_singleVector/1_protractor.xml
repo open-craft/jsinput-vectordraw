@@ -4,18 +4,11 @@
 import json
 def vglcfn(e, ans):
   '''
-  Grading a force diagram.
+  Vector grading.
   '''
-  ### Custom Checks ###
-  def check_compare_normal_and_gravity_lengths(vectors, points):
-      normal = vectors['N']
-      gravity = vectors['g']
-      if abs(normal.length - gravity.length) < 1.0:
-          return 'Normal Force and Gravitational Force should be similar lengths.'
-  custom_checks = {
-    'compare_normal_and_gravity_lengths': check_compare_normal_and_gravity_lengths
-  }
+  custom_checks = {}
   success_message = 'Good job!'
+
   ### Python API - Do not edit after this line ####
   ## Built-in check functions
   def check_presence(check, vectors):
@@ -42,8 +35,15 @@ def vglcfn(e, ans):
           return 'The length of {} is incorrect. Your length: {:.1f}'.format(vec.name, vec.length)
   def check_angle(check, vectors):
       vec = vectors[check['vector']]
+      expected = check['expected']
       tolerance = check.get('tolerance', 2.0)
-      if abs(vec.angle - check['expected']) > tolerance:
+      upper_limit = (expected + tolerance) % 360
+      lower_limit = (expected - tolerance) % 360
+      if upper_limit < lower_limit:  # Can happen when upper_limit=2, lower_limit=-358, for example.
+          valid = vec.angle <= upper_limit or vec.angle >= lower_limit
+      else:
+          valid = vec.angle >= lower_limit and vec.angle <= upper_limit
+      if not valid:
           return 'The angle of {} is incorrect. Your angle: {:.1f}'.format(vec.name, vec.angle)
   class Point(object):
       def __init__(self, x, y):
@@ -91,7 +91,7 @@ def vglcfn(e, ans):
 ]]>
 </script>
 <p>
-Draw a vector whose angle is $a degrees relative to the positive x direction. <i>Note,
+Draw a vector whose angle is 31 degrees relative to the positive x direction. <i>Note,
 be sure that your vector starts from the center of the protractor, and ends at the outsideedge with the appropriate angle.</i>
 </p>
 <customresponse cfn="vglcfn">
@@ -100,7 +100,7 @@ be sure that your vector starts from the center of the protractor, and ends at t
     set_statefn="setState"
     initial_state='{}'
     width="800"
-    height="450"
+    height="480"
     html_file="/static/1_protractor.html"
     />
 </customresponse>

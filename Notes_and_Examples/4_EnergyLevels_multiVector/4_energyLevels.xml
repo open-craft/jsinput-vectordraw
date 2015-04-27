@@ -9,12 +9,39 @@ def vglcfn(e, ans):
 
   ### Custom Checks ###
 
-  def checkNumberVectors(vectors, points):
-      if len(vectors) == 3:
-          return 'Correct number of vectors.'
+  def check_vector_count(check, vectors):
+      if len(vectors) != check['expected']:
+          return 'Number of vectors is not correct.'
+
+  def check_vector_angles(check, vectors):
+      for vec_name in vectors:
+          angle_check = {
+              'vector': vec_name,
+              'expected': check['expected'],
+              'tolerance': check['tolerance']
+          }
+          result = check_angle(angle_check, vectors)
+          if result is not None:
+              return result
+
+  def check_energy_vector(check, vectors):
+      vector_found = False
+      for vec_name in vectors:
+          if check_tail_y({'vector': vec_name, 'expected': check['tail_y']}, vectors):
+              continue
+          elif check_length({'vector': vec_name, 'expected': check['length']}, vectors):
+              continue
+          else:
+              vector_found = True
+              break
+      if not vector_found:
+          return 'Some of the transition vectors are not correct.'
+
 
   custom_checks = {
-    'checkNumberVectors': checkNumberVectors
+      'vector_count': check_vector_count,
+      'vector_angles': check_vector_angles,
+      'energy_vector': check_energy_vector
   }
   success_message = 'Good job!'
 
@@ -44,24 +71,47 @@ def vglcfn(e, ans):
       if dist > tolerance:
           return 'Vector {} does not end at correct point.'.format(vec.name)
 
+  def _check_coordinate(check, coord):
+      tolerance = check.get('tolerance', 1.0)
+      expected = check['expected']
+      return abs(expected - coord) > tolerance
+
+  def check_tail_x(check, vectors):
+      vec = vectors[check['vector']]
+      if _check_coordinate(check, vec.tail.x):
+          return 'Vector {} does not start at correct point.'.format(vec.name)
+
+  def check_tail_y(check, vectors):
+      vec = vectors[check['vector']]
+      if _check_coordinate(check, vec.tail.y):
+          return 'Vector {} does not start at correct point.'.format(vec.name)
+
+  def check_tip_x(check, vectors):
+      vec = vectors[check['vector']]
+      if _check_coordinate(check, vec.tip.x):
+          return 'Vector {} does not end at correct point.'.format(vec.name)
+
+  def check_tip_y(check, vectors):
+      vec = vectors[check['vector']]
+      if _check_coordinate(check, vec.tip.y):
+          return 'Vector {} does not tip at correct point.'.format(vec.name)
+
   def check_length(check, vectors):
       vec = vectors[check['vector']]
       tolerance = check.get('tolerance', 1.0)
       if abs(vec.length - check['expected']) > tolerance:
           return 'The length of {} is incorrect. Your length: {:.1f}'.format(vec.name, vec.length)
 
-def check_angle(check, vectors):
-    vec = vectors[check['vector']]
-    expected = check['expected']
-    tolerance = check.get('tolerance', 2.0)
-    upper_limit = (expected + tolerance) % 360
-    lower_limit = (expected - tolerance) % 360
-    if upper_limit < lower_limit:  # Can happen when upper_limit=2, lower_limit=-358, for example.
-        valid = vec.angle <= upper_limit or vec.angle >= lower_limit
-    else:
-        valid = vec.angle >= lower_limit and vec.angle <= upper_limit
-    if not valid:
-        return 'The angle of {} is incorrect. Your angle: {:.1f}'.format(vec.name, vec.angle)
+  def check_angle(check, vectors):
+      vec = vectors[check['vector']]
+      tolerance = check.get('tolerance', 2.0)
+      expected = math.radians(check['expected'])
+      x = vec.tip.x - vec.tail.x
+      y = vec.tip.y - vec.tail.y
+      dot_product = x * math.cos(expected) + y * math.sin(expected)
+      angle = math.degrees(math.acos(dot_product / vec.length))
+      if abs(angle) > tolerance:
+          return 'The angle of {} is incorrect. Your angle: {:.1f}'.format(vec.name, vec.angle)
 
 
   class Point(object):
@@ -85,6 +135,10 @@ def check_angle(check, vectors):
           'presence': check_presence,
           'tail': check_tail,
           'tip': check_tip,
+          'tail_x': check_tail_x,
+          'tail_y': check_tail_y,
+          'tip_x': check_tip_x,
+          'tip_y': check_tip_y,
           'length': check_length,
           'angle': check_angle,
       }

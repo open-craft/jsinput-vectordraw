@@ -7,10 +7,11 @@ var VectorDraw = function(element_id, settings) {
         axis: false,
         background: null,
         bounding_box_size: 10,
+        show_navigation: false,
         vectors: [],
         points: [],
         expected_result: {},
-        show_navigation: false
+        custom_checks: []
     };
 
     this.board = null;
@@ -112,7 +113,8 @@ VectorDraw.prototype.createBoard = function() {
             name: point.name,
             withLabel: false,
             strokeColor: 'pink',
-            fillColor: 'pink'
+            fillColor: 'pink',
+            showInfoBox: false
         };
         this.board.create('point', point.coords, opts);
     }, this);
@@ -174,12 +176,14 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
         size: style.pointSize,
         name: vec.name,
         withLabel: false,
-        fixed: true
+        fixed: true,
+        showInfoBox: false
     });
     var tip = this.board.create('point', coords[1], {
         size: style.pointSize,
         name: style.label || vec.name,
-        withLabel: true
+        withLabel: true,
+        showInfoBox: false
     });
     var arrow = this.board.create('arrow', [tail, tip], {
         name: vec.name,
@@ -187,7 +191,7 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
         strokeColor: style.color
     });
 
-    tip.label.setAttribute({fontsize: 18});
+    tip.label.setAttribute({fontsize: 18, highlightStrokeColor: 'black'});
 
     // Disable the <option> element corresponding to vector.
     var option = this.element.find('.menu option[value=' + idx + ']');
@@ -285,8 +289,7 @@ VectorDraw.prototype.updateVectorProperties = function(vector) {
 
 VectorDraw.prototype.canCreateVectorOnTopOf = function(el) {
     // If the user is trying to drag the arrow of an existing vector, we should not create a new vector.
-    // If the user is trying to drag the arrow on top of text label, we should not create a new vector.
-    if (el instanceof JXG.Line || el instanceof JXG.Text) {
+    if (el instanceof JXG.Line) {
         return false;
     }
     // If this is tip/tail of a vector, it's going to have a descendant Line - we should not create a new vector.
@@ -400,7 +403,8 @@ var getInput = function() {
 
     _.each(vectordraw.settings.expected_result, function(answer, name) {
         checks.push({vector: name, check: 'presence'});
-        ['tail', 'tip', 'length', 'angle'].forEach(function(prop) {
+        ['tail', 'tail_x', 'tail_y', 'tip', 'tip_x', 'tip_y',
+         'length', 'angle'].forEach(function(prop) {
             if (prop in answer) {
                 var check = {vector: name, check: prop, expected: answer[prop]};
                 if (prop + '_tolerance' in answer) {
@@ -411,7 +415,7 @@ var getInput = function() {
         });
     });
 
-    input.checks = checks;
+    input.checks = checks.concat(vectordraw.settings.custom_checks);
 
     return JSON.stringify(input);
 };

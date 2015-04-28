@@ -10,6 +10,10 @@ body {
     border: 2px solid #1f628d;
 }
 
+.jxgboard .JXGtext {
+    pointer-events: none;  /* prevents cursor from turning into caret when over a label */
+}
+
 .menu {
     float: left;
     width: 160px;

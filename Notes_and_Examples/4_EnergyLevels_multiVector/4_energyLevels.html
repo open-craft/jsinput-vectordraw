@@ -18,19 +18,20 @@
                   width: 20
               },
               vectors: [
-                    {name: 't<sub>1</sub>', description: 'Transition #1', tail: [0, 1.5], length: 5, angle: -75, render: false},
-                    {name: 't<sub>2</sub>', description: 'Transition #2', tail: [0, 1.5], length: 5, angle: -75, render: false},
-                    {name: 't<sub>3</sub>', description: 'Transition #3', tail: [0, 1.5], length: 5, angle: -75, render: false},
-                    {name: 't<sub>4</sub>', description: 'Transition #3', tail: [0, 1.5], length: 5, angle: -75, render: false},
-                    {name: 't<sub>5</sub>', description: 'Transition #3', tail: [0, 1.5], length: 5, angle: -75, render: false},
-                    {name: 't<sub>6</sub>', description: 'Transition #3', tail: [0, 1.5], length: 5, angle: -75, render: false}
+                  {name: 't<sub>1</sub>', description: 'Transition #1', tail: [0, 1.5], length: 5, angle: -75, render: false},
+                  {name: 't<sub>2</sub>', description: 'Transition #2', tail: [0, 1.5], length: 5, angle: -75, render: false},
+                  {name: 't<sub>3</sub>', description: 'Transition #3', tail: [0, 1.5], length: 5, angle: -75, render: false},
+                  {name: 't<sub>4</sub>', description: 'Transition #4', tail: [0, 1.5], length: 5, angle: -75, render: false},
+                  {name: 't<sub>5</sub>', description: 'Transition #5', tail: [0, 1.5], length: 5, angle: -75, render: false},
+                  {name: 't<sub>6</sub>', description: 'Transition #6', tail: [0, 1.5], length: 5, angle: -75, render: false}
               ],
-              points: [{name: 'cm', coords: [-20, -20], label:'n31'}],
-              expected_result: {
-                 't<sub>1</sub>': {angle: 270, angle_tolerance: 2, tail: [0, -0.75], tail_tolerance: 50.0},
-                 't<sub>2</sub>': {angle: 270, angle_tolerance: 2, tail: [0, -0.75], tail_tolerance: 50.0},
-                 't<sub>3</sub>': {angle: 270, angle_tolerance: 2, tail: [0, -0.75], tail_tolerance: 50.0}
-              }
+              custom_checks: [
+                  {check: 'vector_count', expected: 3},
+                  {check: 'vector_angles', expected: 270, tolerance: 2},
+                  {check: 'energy_vector', tail_y: 1.4, length: 8.25},
+                  {check: 'energy_vector', tail_y: 1.4, length: 3.25},
+                  {check: 'energy_vector', tail_y: -1.8, length: 5.0}
+              ]
           };
         </script>
 

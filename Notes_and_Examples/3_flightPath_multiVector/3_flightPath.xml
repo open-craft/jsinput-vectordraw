@@ -1,4 +1,4 @@
-<problem display_name="webGLDemo">
+<problem display_name="Flight Path">
 <script type="loncapa/python">
 <![CDATA[
 import json

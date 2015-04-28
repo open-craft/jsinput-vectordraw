@@ -1,4 +1,4 @@
-<problem display_name="webGLDemo">
+<problem display_name="Current Direction">
 <script type="loncapa/python">
 <![CDATA[
 import json

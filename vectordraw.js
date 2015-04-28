@@ -12,6 +12,7 @@ var VectorDraw = function(element_id, settings) {
         points: [],
         expected_result: {},
         custom_checks: []
+        add_vector_label: "Add Selected Force"
     };
 
     this.board = null;
@@ -43,7 +44,7 @@ VectorDraw.prototype.template = _.template([
     '            <option value="<%= idx %>"><%= vec.description %></option>',
     '        <% }) %>',
     '        </select>',
-    '        <button class="add-vector">Add Selected Force</button>',
+    '        <button class="add-vector"><%= add_vector_label %></button>',
     '        <button class="reset">Reset</button>',
     '        <button class="undo" title="Undo"><span class="fa fa-undo" /></button>',
     '        <button class="redo" title="redo"><span class="fa fa-repeat" /></button>',

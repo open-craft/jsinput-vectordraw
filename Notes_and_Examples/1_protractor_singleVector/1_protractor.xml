@@ -1,4 +1,4 @@
-<problem display_name="webGLDemo">
+<problem display_name="Vector Draw - Protractor">
 <script type="loncapa/python">
 <![CDATA[
 import json

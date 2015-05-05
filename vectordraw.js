@@ -11,7 +11,7 @@ var VectorDraw = function(element_id, settings) {
         vectors: [],
         points: [],
         expected_result: {},
-        custom_checks: []
+        custom_checks: [],
         add_vector_label: "Add Selected Force"
     };
 

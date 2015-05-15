@@ -1,0 +1,124 @@
+<problem display_name="Force Diagram - String and Spring">
+
+<script type="loncapa/python">
+<![CDATA[
+import json
+def vglcfn(e, ans):
+  '''
+  Vector grading.
+  '''
+  custom_checks = {}
+  success_message = 'Good job!'
+  ### Python API - Do not edit after this line ####
+  ## Built-in check functions
+  def check_presence(check, vectors):
+      if check['vector'] not in vectors:
+          return 'You need to use the {} vector.'.format(check['vector'])
+  def check_tail(check, vectors):
+      vec = vectors[check['vector']]
+      tolerance = check.get('tolerance', 1.0)
+      expected = check['expected']
+      dist = math.hypot(expected[0] - vec.tail.x, expected[1] - vec.tail.y)
+      if dist > tolerance:
+          return 'Vector {} does not start at correct point.'.format(vec.name)
+  def check_tip(check, vectors):
+      vec = vectors[check['vector']]
+      tolerance = check.get('tolerance', 1.0)
+      expected = check['expected']
+      dist = math.hypot(expected[0] - vec.tip.x, expected[1] - vec.tip.y)
+      if dist > tolerance:
+          return 'Vector {} does not end at correct point.'.format(vec.name)
+  def check_length(check, vectors):
+      vec = vectors[check['vector']]
+      tolerance = check.get('tolerance', 1.0)
+      if abs(vec.length - check['expected']) > tolerance:
+          return 'The length of {} is incorrect. Your length: {:.1f}'.format(vec.name, vec.length)
+  def check_angle(check, vectors):
+      vec = vectors[check['vector']]
+      expected = check['expected']
+      tolerance = check.get('tolerance', 2.0)
+      upper_limit = (expected + tolerance) % 360
+      lower_limit = (expected - tolerance) % 360
+      if upper_limit < lower_limit:  # Can happen when upper_limit=2, lower_limit=-358, for example.
+          valid = vec.angle <= upper_limit or vec.angle >= lower_limit
+      else:
+          valid = vec.angle >= lower_limit and vec.angle <= upper_limit
+      if not valid:
+          return 'The angle of {} is incorrect. Your angle: {:.1f}'.format(vec.name, vec.angle)
+  class Point(object):
+      def __init__(self, x, y):
+          self.x = x
+          self.y = y
+  class Vector(object):
+      def __init__(self, name, x1, y1, x2, y2):
+          self.name = name
+          self.tail = Point(x1, y1)
+          self.tip = Point(x2, y2)
+          self.length = math.hypot(x2 - x1, y2 - y1)
+          angle = math.degrees(math.atan2(y2 - y1, x2 - x1))
+          if angle < 0:
+              angle += 360
+          self.angle = angle
+  class Grader(object):
+      check_registry = {
+          'presence': check_presence,
+          'tail': check_tail,
+          'tip': check_tip,
+          'length': check_length,
+          'angle': check_angle,
+      }
+      def __init__(self, answer, custom_checks, success_message='Test passed'):
+          self.answer = answer
+          self.check_registry.update(custom_checks)
+          self.success_message = success_message
+      def grade(self):
+          for check in self.answer['checks']:
+              check_fn = self.check_registry[check['check']]
+              result = check_fn(check, self._get_vectors())
+              if result:
+                  return {'ok': False, 'msg': result}
+          return {'ok': True, 'msg': self.success_message}
+      def _get_vectors(self):
+          vectors = {}
+          for name, props in self.answer['vectors'].iteritems():
+              tail = props['tail']
+              tip = props['tip']
+              vectors[name] = Vector(name, tail[0], tail[1], tip[0], tip[1])
+          return vectors
+  answer = json.loads(json.loads(ans)['answer'])
+  grader = Grader(answer, custom_checks, success_message)
+  return grader.grade()
+]]>
+</script>
+<p><img src="/static/Davidson_EdX-50.png" width="901" height="112"/></p>
+<p>
+A student attaches two fans on a 0.700 kg cart that is resting on a cart track. The fans are pointed in opposite directions as shown in the figure below. When each fan is running, it pushes the air in an outward direction from the center of the cart. The student turns on both fans, each of which produces an external force of 1.0 N on the cart.
+Let \(F_G\) represents the gravitational force, \(F_N\) the normal force, and \(F_1\) and \(F_2\) the external forces exerted on the cart when Fans 1 and 2 are running. </p>
+<p>
+  Draw the appropriate Free Body Diagram representing the described system.
+</p>
+<img src="/static/IMG_4.2.2_Two_Fan_FBDs_v2.jpg" />
+<p>
+  <i>This is a vector drawing problem type. Use your mouse, or the "add vector" button, to place and drag vectors to the blue points. Be sure to place the correctly labeled vector at the appropriate location. </i>
+</p>
+<customresponse cfn="vglcfn">
+  <jsinput gradefn="getInput"
+    get_statefn="getState"
+    set_statefn="setState"
+    initial_state='{}'
+    width="800"
+    height="500"
+    html_file="/static/11_FDiagrams_LC2_Q2.html"
+    />
+</customresponse>
+  <solution>
+<div class="detailed-solution">
+<p>Explanation</p>
+  <img src="/static/IMG_4.1.2_1_1.jpg" width="400" height="300"/>
+<p>[explanation]
+Fan 1 blows outward from the cart, so the air would create an force on the cart directed to the right. Fan 2 also blows outward, but the force it creates would be to the left. All lengths should be relative to the amount to force calculations.
+</p>
+
+</div>
+</solution>
+</problem>

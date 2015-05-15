@@ -39,7 +39,10 @@
                  'N': {angle: 90, angle_tolerance: 2, tail: [0, -0.75], tail_tolerance: 0.25},
                  'g': {angle: 270, angle_tolerance: 2, tail: [0, -0.75], tail_tolerance: 0.25},
                  'f': {angle: 180, angle_tolerance: 2, tail: [0, -0.75], tail_tolerance: 0.25}
-              }
+              },
+              custom_checks: [
+                  {check: 'compare_normal_and_gravity_lengths'}
+              ]
           };
         </script>
 

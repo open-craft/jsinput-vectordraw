@@ -5,17 +5,21 @@
 import json
 import math
 
+
+try:
+    custom_checks
+except NameError:
+    custom_checks = {}
+try:
+    success_message
+except NameError:
+    success_message = 'Good job!'
+
+
 def vglcfn(e, ans):
     """Main grading function."""
-    try:
-        custom_checks
-    except NameError:
-        custom_checks = {}
-    try:
-        success_message
-    except NameError:
-        success_message = 'Good job!'
-
+    global custom_checks
+    global success_message
     answer = json.loads(json.loads(ans)['answer'])
     grader = Grader(answer, custom_checks, success_message)
     return grader.grade()

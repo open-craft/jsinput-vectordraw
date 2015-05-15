@@ -79,6 +79,9 @@ These are the supported vector properties:
   Defaults to `false`.
 * `style`: Custom style properties. Supports all `JSXGraph.Line`
   options, for example `pointSize`, `width`, `color`.
+* `type`: Supported values are `"vector"` (default) and
+  `"segment"`. When set to `"segment"`, the vector is drawn without
+  the arrow.
 
 #### points
 
@@ -99,8 +102,23 @@ ignored when grading. These are the supported properties:
   interested in one of the coordinates, but not both.
 * `tip_x`, `tip_y`: Use these instead of `tip` when you are only
   interested in one of the coordinates, but not both.
+* `coords`: Combines `tail`, `tip`, `tail_x`, and `tail_y` as a single
+  rule. The `'_'` character represents a coordinate with any value.
+  Examples:
+  * `[[1, 1], [2, 2]]` - same as a combination of `tail: `[1, 1]` and
+    `tip: [2, 2]`.
+  * `[['_', 3], [5, '_']]` - same as a combination of `tail_y: 3` and
+    `tip_x: 5`.
 * `length`: The expected length of the vector.
 * `angle`: The expected vector angle.
+* `segment_coords`: Just like `coords`, except that it is intented to
+  be used with segments rather than vectors. Segments are not directed
+  and there's no distinction between `tail` and `tip` points.  -
+  `segment_coords: [[1, 2], [3, 4]]` is therefore equivalent to
+  `segment_coords: [[3, 4], [1, 2]]`.
+* `segment_angle`: Just like `angle`, but intended to be used with
+  segments. Segments are not directed and `segment_angle: 0` is
+  therefore equivalent to `segment_angle: 180`.
 
 Every property is optional - you can check an arbitray list of
 properties for each vector.

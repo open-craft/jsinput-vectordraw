@@ -186,7 +186,9 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
         withLabel: true,
         showInfoBox: false
     });
-    var arrow = this.board.create('arrow', [tail, tip], {
+
+    var line_type = vec.type === 'segment' ? 'segment' : 'arrow';
+    var line = this.board.create(line_type, [tail, tip], {
         name: vec.name,
         strokeWidth: style.width,
         strokeColor: style.color
@@ -198,7 +200,7 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
     var option = this.element.find('.menu option[value=' + idx + ']');
     option.prop('disabled', true).prop('selected', false);
 
-    return arrow;
+    return line;
 };
 
 VectorDraw.prototype.removeVector = function(idx) {
@@ -404,8 +406,8 @@ var getInput = function() {
 
     _.each(vectordraw.settings.expected_result, function(answer, name) {
         checks.push({vector: name, check: 'presence'});
-        ['tail', 'tail_x', 'tail_y', 'tip', 'tip_x', 'tip_y',
-         'length', 'angle'].forEach(function(prop) {
+        ['tail', 'tail_x', 'tail_y', 'tip', 'tip_x', 'tip_y', 'coords',
+         'length', 'angle', 'segment_angle', 'segment_coords'].forEach(function(prop) {
             if (prop in answer) {
                 var check = {vector: name, check: prop, expected: answer[prop]};
                 if (prop + '_tolerance' in answer) {

@@ -24,20 +24,8 @@ import json
 import math
 
 
-try:
-    custom_checks
-except NameError:
-    custom_checks = {}
-try:
-    success_message
-except NameError:
-    success_message = 'Good job!'
-
-
 def vglcfn(e, ans):
     """Main grading function."""
-    global custom_checks
-    global success_message
     answer = json.loads(json.loads(ans)['answer'])
     grader = Grader(answer, custom_checks, success_message)
     return grader.grade()
@@ -90,38 +78,33 @@ def check_tip_y(check, vectors):
     if _check_coordinate(check, vec.tip.y):
         return 'Vector {} does not end at correct point.'.format(vec.name)
 
-def _check_coords(vec, expected, tolerance):
+def _coord_delta(expected, actual):
+    if expected == '_':
+        return 0
+    else:
+        return expected - actual
+
+def _coords_within_tolerance(vec, expected, tolerance):
     for expected_coords, vec_coords in ([expected[0], vec.tail], [expected[1], vec.tip]):
-        if expected_coords[0] == '_':
-            if expected_coords[1] != '_':
-                # Only y given; not interested in x.
-                if abs(expected_coords[1] - vec_coords.y) > tolerance:
-                    return True
-        elif expected_coords[1] == '_':
-            # Only x given; not interested in y.
-            if abs(expected_coords[0] - vec_coords.x) > tolerance:
-                return True
-        else:
-            # Both coordinates given; check distance from expected point.
-            x = expected_coords[0] - vec_coords.x
-            y = expected_coords[1] - vec_coords.y
-            if math.hypot(x, y) > tolerance:
-                return True
-    return False
+        delta_x = _coord_delta(expected_coords[0], vec_coords.x)
+        delta_y = _coord_delta(expected_coords[1], vec_coords.y)
+        if math.hypot(delta_x, delta_y) > tolerance:
+            return False
+    return True
 
 def check_coords(check, vectors):
     vec = vectors[check['vector']]
     expected = check['expected']
     tolerance = check.get('tolerance', 1.0)
-    if _check_coords(vec, expected, tolerance):
+    if not _coords_within_tolerance(vec, expected, tolerance):
         return 'Vector {} coordinates are not correct.'.format(vec.name)
 
 def check_segment_coords(check, vectors):
     vec = vectors[check['vector']]
     expected = check['expected']
     tolerance = check.get('tolerance', 1.0)
-    if _check_coords(vec, expected, tolerance) and \
-            _check_coords(vec.opposite(), expected, tolerance):
+    if not (_coords_within_tolerance(vec, expected, tolerance) or
+            _coords_within_tolerance(vec.opposite(), expected, tolerance)):
         return 'Segment {} coordinates are not correct.'.format(vec.name)
 
 def check_length(check, vectors):
@@ -130,7 +113,7 @@ def check_length(check, vectors):
     if abs(vec.length - check['expected']) > tolerance:
         return 'The length of {} is incorrect. Your length: {:.1f}'.format(vec.name, vec.length)
 
-def _check_angle(vec, expected, tolerance):
+def _angle_within_tolerance(vec, expected, tolerance):
     # Calculate angle between vec and identity vector with expected angle
     # using the formula:
     # angle = acos((A . B) / len(A)*len(B))
@@ -138,13 +121,13 @@ def _check_angle(vec, expected, tolerance):
     y = vec.tip.y - vec.tail.y
     dot_product = x * math.cos(expected) + y * math.sin(expected)
     angle = math.degrees(math.acos(dot_product / vec.length))
-    return abs(angle) > tolerance
+    return abs(angle) <= tolerance
 
 def check_angle(check, vectors):
     vec = vectors[check['vector']]
     tolerance = check.get('tolerance', 2.0)
     expected = math.radians(check['expected'])
-    if _check_angle(vec, expected, tolerance):
+    if not _angle_within_tolerance(vec, expected, tolerance):
         return 'The angle of {} is incorrect. Your angle: {:.1f}'.format(vec.name, vec.angle)
 
 def check_segment_angle(check, vectors):
@@ -153,9 +136,9 @@ def check_segment_angle(check, vectors):
     vec = vectors[check['vector']]
     tolerance = check.get('tolerance', 2.0)
     expected = math.radians(check['expected'])
-    if _check_angle(vec, expected, tolerance):
-        if _check_angle(vec.opposite(), expected, tolerance):
-            return 'The angle of {} is incorrect. Your angle: {:.1f}'.format(vec.name, vec.angle)
+    if not (_angle_within_tolerance(vec, expected, tolerance) or
+            _angle_within_tolerance(vec.opposite(), expected, tolerance)):
+        return 'The angle of {} is incorrect. Your angle: {:.1f}'.format(vec.name, vec.angle)
 
 
 class Point(object):
@@ -214,6 +197,7 @@ class Grader(object):
             tip = props['tip']
             vectors[name] = Vector(name, tail[0], tail[1], tip[0], tip[1])
         return vectors
+
 ]]>
 </script>
 <p>

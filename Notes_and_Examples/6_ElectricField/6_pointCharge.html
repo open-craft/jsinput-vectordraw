@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+        <link href="/c4x/DavidsonX/APPY003/asset/vectordraw.css" rel="stylesheet" type="text/css" />
+    </head>
+
+    <body>
+        <div id="vectordraw" />
+        <script type="text/javascript">
+          // Background image, vectors, and points are defined below.
+          var vectordraw_settings = {
+              width: 550,
+              height: 450,
+              bounding_box_size: 8,
+              add_vector_label: "Add Selected Vector",
+              background: {
+                  src: '/c4x/DavidsonX/APPY003/asset/pointChargeField.png',
+                  width: 18
+              },
+              vectors: [
+                    {name: 'A', description: 'Electric Field Point A', coords: [[4, 4], [7, 7]], render: false},
+                    {name: 'B', description: 'Electric Field  Point B', coords: [[3, 3], [6, 6]], render: false},
+                    {name: 'C', description: 'Electric Field  Point C', coords: [[3, 3], [6, 6]], render: false}
+              ],
+              // points: [{name: 'cmA', coords: [-0.1,-2.2]},
+              //          {name: 'cmB', coords: [-4.0,0.21]},
+              //          {name: 'cmC', coords: [2.5,2.9]}
+              //          ],
+              expected_result: {
+                 'A': {angle: 270, angle_tolerance: 3, tail: [-0.1,-2.2], tail_tolerance: 0.25},
+                 'B': {angle: 180, angle_tolerance: 3, tail: [-4.0,0.21], tail_tolerance: 0.25},
+                 'C': {angle: 45, angle_tolerance: 3, tail: [2.5,2.9], tail_tolerance: 0.25}
+              }
+          };
+        </script>
+
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.2/underscore-min.js"></script>
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jsxgraph/0.98/jsxgraphcore.js"></script>
+        <script type="text/javascript" src="/c4x/DavidsonX/APPY003/asset/vectordraw.js"></script>
+    </body>
+</html>

@@ -151,9 +151,10 @@ VectorDraw.prototype.getVectorStyle = function(vec) {
     //width, color, size of control point, label (which should be a JSXGraph option)
     var default_style = {
         pointSize: 1,
+        pointColor: 'red',
         width: 4,
         color: "blue",
-        label: ""
+        label: null
     };
 
     return _.extend(default_style, vec.style);
@@ -174,15 +175,19 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
     var style = this.getVectorStyle(vec);
 
     var tail = this.board.create('point', coords[0], {
-        size: style.pointSize,
         name: vec.name,
+        size: style.pointSize,
+        fillColor: style.pointColor,
+        strokeColor: style.pointColor,
         withLabel: false,
         fixed: true,
         showInfoBox: false
     });
     var tip = this.board.create('point', coords[1], {
-        size: style.pointSize,
         name: style.label || vec.name,
+        size: style.pointSize,
+        fillColor: style.pointColor,
+        strokeColor: style.pointColor,
         withLabel: true,
         showInfoBox: false
     });

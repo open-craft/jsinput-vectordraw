@@ -77,8 +77,8 @@ These are the supported vector properties:
 * `render`: Whether this vector should be drawn on the board
   automatically, without the user having to add it from the dropdown.
   Defaults to `false`.
-* `style`: Custom style properties. Supports all `JSXGraph.Line`
-  options, for example `pointSize`, `width`, `color`.
+* `style`: Custom style properties. Supports the following options:
+  `label`, `width`, `color`, `pointSize`, `pointColor`.
 * `type`: Supported values are `"vector"` (default) and
   `"segment"`. When set to `"segment"`, the vector is drawn without
   the arrow.

@@ -12,7 +12,8 @@ var VectorDraw = function(element_id, settings) {
         points: [],
         expected_result: {},
         custom_checks: [],
-        add_vector_label: "Add Selected Force"
+        add_vector_label: 'Add Selected Force',
+        vector_properties_label: 'Vector Properties'
     };
 
     this.board = null;
@@ -50,7 +51,7 @@ VectorDraw.prototype.template = _.template([
     '        <button class="redo" title="redo"><span class="fa fa-repeat" /></button>',
     '    </div>',
     '    <div class="vector-properties">',
-    '      <h3>Vector Properties</h3>',
+    '      <h3><%= vector_properties_label %></h3>',
     '      <div class="vector-prop-name">',
     '        name: <span class="value vector-prop-bold">-</span>',
     '      </div>',

@@ -52,6 +52,10 @@ supports these properties:
 * `axis`: Show the graph axis (defaults to `false`).
 * `show_navigation`: Show navigation arrows and zooom controls
   (defaults to `false`).
+* `add_vector_label`: Sets the text displayed on the add-vector button
+  (defaults to `'Add Selected Force'`).
+* `vector_properties_label`: Sets the text of the vector property box
+  label (defaults to `'Vector Properties'`).
 
 #### vectors
 

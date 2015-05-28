@@ -8,12 +8,13 @@ var VectorDraw = function(element_id, settings) {
         background: null,
         bounding_box_size: 10,
         show_navigation: false,
+        show_vector_properties: true,
+        add_vector_label: 'Add Selected Force',
+        vector_properties_label: 'Vector Properties',
         vectors: [],
         points: [],
         expected_result: {},
-        custom_checks: [],
-        add_vector_label: 'Add Selected Force',
-        vector_properties_label: 'Vector Properties'
+        custom_checks: []
     };
 
     this.board = null;
@@ -50,18 +51,20 @@ VectorDraw.prototype.template = _.template([
     '        <button class="undo" title="Undo"><span class="fa fa-undo" /></button>',
     '        <button class="redo" title="redo"><span class="fa fa-repeat" /></button>',
     '    </div>',
-    '    <div class="vector-properties">',
-    '      <h3><%= vector_properties_label %></h3>',
-    '      <div class="vector-prop-name">',
-    '        name: <span class="value vector-prop-bold">-</span>',
+    '    <% if (show_vector_properties) { %>',
+    '      <div class="vector-properties">',
+    '        <h3><%= vector_properties_label %></h3>',
+    '        <div class="vector-prop-name">',
+    '          name: <span class="value vector-prop-bold">-</span>',
+    '        </div>',
+    '        <div class="vector-prop-length">',
+    '          length: <span class="value">-</span>',
+    '        </div>',
+    '        <div class="vector-prop-angle">',
+    '          angle: <span class="value">-</span>&deg;',
+    '        </div>',
     '      </div>',
-    '      <div class="vector-prop-length">',
-    '        length: <span class="value">-</span>',
-    '      </div>',
-    '      <div class="vector-prop-angle">',
-    '        angle: <span class="value">-</span>&deg;',
-    '      </div>',
-    '    </div>',
+    '    <% } %>',
     '</div>'
 ].join('\n'));
 

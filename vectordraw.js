@@ -8,11 +8,13 @@ var VectorDraw = function(element_id, settings) {
         background: null,
         bounding_box_size: 10,
         show_navigation: false,
+        show_vector_properties: true,
+        add_vector_label: 'Add Selected Force',
+        vector_properties_label: 'Vector Properties',
         vectors: [],
         points: [],
         expected_result: {},
-        custom_checks: [],
-        add_vector_label: "Add Selected Force"
+        custom_checks: []
     };
 
     this.board = null;
@@ -49,18 +51,20 @@ VectorDraw.prototype.template = _.template([
     '        <button class="undo" title="Undo"><span class="fa fa-undo" /></button>',
     '        <button class="redo" title="redo"><span class="fa fa-repeat" /></button>',
     '    </div>',
-    '    <div class="vector-properties">',
-    '      <h3>Vector Properties</h3>',
-    '      <div class="vector-prop-name">',
-    '        name: <span class="value vector-prop-bold">-</span>',
+    '    <% if (show_vector_properties) { %>',
+    '      <div class="vector-properties">',
+    '        <h3><%= vector_properties_label %></h3>',
+    '        <div class="vector-prop-name">',
+    '          name: <span class="value vector-prop-bold">-</span>',
+    '        </div>',
+    '        <div class="vector-prop-length">',
+    '          length: <span class="value">-</span>',
+    '        </div>',
+    '        <div class="vector-prop-angle">',
+    '          angle: <span class="value">-</span>&deg;',
+    '        </div>',
     '      </div>',
-    '      <div class="vector-prop-length">',
-    '        length: <span class="value">-</span>',
-    '      </div>',
-    '      <div class="vector-prop-angle">',
-    '        angle: <span class="value">-</span>&deg;',
-    '      </div>',
-    '    </div>',
+    '    <% } %>',
     '</div>'
 ].join('\n'));
 
@@ -151,9 +155,10 @@ VectorDraw.prototype.getVectorStyle = function(vec) {
     //width, color, size of control point, label (which should be a JSXGraph option)
     var default_style = {
         pointSize: 1,
+        pointColor: 'red',
         width: 4,
         color: "blue",
-        label: ""
+        label: null
     };
 
     return _.extend(default_style, vec.style);
@@ -174,15 +179,19 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
     var style = this.getVectorStyle(vec);
 
     var tail = this.board.create('point', coords[0], {
-        size: style.pointSize,
         name: vec.name,
+        size: style.pointSize,
+        fillColor: style.pointColor,
+        strokeColor: style.pointColor,
         withLabel: false,
-        fixed: true,
+        fixed: (vec.type !== 'segment'),
         showInfoBox: false
     });
     var tip = this.board.create('point', coords[1], {
-        size: style.pointSize,
         name: style.label || vec.name,
+        size: style.pointSize,
+        fillColor: style.pointColor,
+        strokeColor: style.pointColor,
         withLabel: true,
         showInfoBox: false
     });
@@ -290,16 +299,27 @@ VectorDraw.prototype.updateVectorProperties = function(vector) {
     $('.vector-prop-angle .value', this.element).html(angle.toFixed(2));
 };
 
+VectorDraw.prototype.isVectorTailDraggable = function(vector) {
+    return vector.elType === 'segment';
+};
+
 VectorDraw.prototype.canCreateVectorOnTopOf = function(el) {
     // If the user is trying to drag the arrow of an existing vector, we should not create a new vector.
     if (el instanceof JXG.Line) {
         return false;
     }
-    // If this is tip/tail of a vector, it's going to have a descendant Line - we should not create a new vector.
+    // If this is tip/tail of a vector, it's going to have a descendant Line - we should not create a new vector
+    // when over the tip. Creating on top of the tail is allowed for plain vectors but not for segments.
     // If it doesn't have a descendant Line, it's a point from settings.points - creating a new vector is allowed.
     if (el instanceof JXG.Point) {
         var vector = this.getVectorForObject(el);
-        return !vector || vector.point1 == el;
+        if (!vector) {
+            return true;
+        } else if (el === vector.point1 && !this.isVectorTailDraggable(vector)) {
+            return true;
+        } else {
+            return false;
+        }
     }
     return true;
 };
@@ -345,10 +365,10 @@ VectorDraw.prototype.onBoardMove = function(evt) {
 
 VectorDraw.prototype.onBoardUp = function(evt) {
     this.drawMode = false;
-    if (this.dragged_vector) {
+    if (this.dragged_vector && !this.isVectorTailDraggable(this.dragged_vector)) {
         this.dragged_vector.point1.setProperty({fixed: true});
-        this.dragged_vector = null;
     }
+    this.dragged_vector = null;
 };
 
 VectorDraw.prototype.getVectorCoords = function(name) {
@@ -405,13 +425,21 @@ var getInput = function() {
     var checks = [];
 
     _.each(vectordraw.settings.expected_result, function(answer, name) {
-        checks.push({vector: name, check: 'presence'});
+        var presence_check = {vector: name, check: 'presence'};
+        if ('presence_errmsg' in answer) {
+            presence_check.errmsg = answer.presence_errmsg;
+        }
+        checks.push(presence_check);
+
         ['tail', 'tail_x', 'tail_y', 'tip', 'tip_x', 'tip_y', 'coords',
          'length', 'angle', 'segment_angle', 'segment_coords'].forEach(function(prop) {
             if (prop in answer) {
                 var check = {vector: name, check: prop, expected: answer[prop]};
                 if (prop + '_tolerance' in answer) {
                     check.tolerance = answer[prop + '_tolerance'];
+                }
+                if (prop + '_errmsg' in answer) {
+                    check.errmsg = answer[prop + '_errmsg']
                 }
                 checks.push(check);
             }

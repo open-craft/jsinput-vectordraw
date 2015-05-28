@@ -150,7 +150,7 @@ than the default `"Vector N does not start at the correct point"`, you
 would specify the expected result like this:
 
     expected_result: {
-        N: {tail_x: 5, tail_errmsg: 'N starts at a wrong location, try again.'}
+        N: {tail_x: 5, tail_x_errmsg: 'N starts at a wrong location, try again.'}
     }
 
 The custom error messages can use standard python `format`

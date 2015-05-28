@@ -180,7 +180,7 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
         fillColor: style.pointColor,
         strokeColor: style.pointColor,
         withLabel: false,
-        fixed: true,
+        fixed: (vec.type !== 'segment'),
         showInfoBox: false
     });
     var tip = this.board.create('point', coords[1], {
@@ -295,16 +295,27 @@ VectorDraw.prototype.updateVectorProperties = function(vector) {
     $('.vector-prop-angle .value', this.element).html(angle.toFixed(2));
 };
 
+VectorDraw.prototype.isVectorTailDraggable = function(vector) {
+    return vector.elType === 'segment';
+};
+
 VectorDraw.prototype.canCreateVectorOnTopOf = function(el) {
     // If the user is trying to drag the arrow of an existing vector, we should not create a new vector.
     if (el instanceof JXG.Line) {
         return false;
     }
-    // If this is tip/tail of a vector, it's going to have a descendant Line - we should not create a new vector.
+    // If this is tip/tail of a vector, it's going to have a descendant Line - we should not create a new vector
+    // when over the tip. Creating on top of the tail is allowed for plain vectors but not for segments.
     // If it doesn't have a descendant Line, it's a point from settings.points - creating a new vector is allowed.
     if (el instanceof JXG.Point) {
         var vector = this.getVectorForObject(el);
-        return !vector || vector.point1 == el;
+        if (!vector) {
+            return true;
+        } else if (el === vector.point1 && !this.isVectorTailDraggable(vector)) {
+            return true;
+        } else {
+            return false;
+        }
     }
     return true;
 };
@@ -350,10 +361,10 @@ VectorDraw.prototype.onBoardMove = function(evt) {
 
 VectorDraw.prototype.onBoardUp = function(evt) {
     this.drawMode = false;
-    if (this.dragged_vector) {
+    if (this.dragged_vector && !this.isVectorTailDraggable(this.dragged_vector)) {
         this.dragged_vector.point1.setProperty({fixed: true});
-        this.dragged_vector = null;
     }
+    this.dragged_vector = null;
 };
 
 VectorDraw.prototype.getVectorCoords = function(name) {

@@ -425,13 +425,21 @@ var getInput = function() {
     var checks = [];
 
     _.each(vectordraw.settings.expected_result, function(answer, name) {
-        checks.push({vector: name, check: 'presence'});
+        var presence_check = {vector: name, check: 'presence'};
+        if ('presence_errmsg' in answer) {
+            presence_check.errmsg = answer.presence_errmsg;
+        }
+        checks.push(presence_check);
+
         ['tail', 'tail_x', 'tail_y', 'tip', 'tip_x', 'tip_y', 'coords',
          'length', 'angle', 'segment_angle', 'segment_coords'].forEach(function(prop) {
             if (prop in answer) {
                 var check = {vector: name, check: prop, expected: answer[prop]};
                 if (prop + '_tolerance' in answer) {
                     check.tolerance = answer[prop + '_tolerance'];
+                }
+                if (prop + '_errmsg' in answer) {
+                    check.errmsg = answer[prop + '_errmsg']
                 }
                 checks.push(check);
             }

@@ -129,7 +129,7 @@ ignored when grading. These are the supported properties:
 Every property is optional - you can check an arbitray list of
 properties for each vector.
 
-Each property check is performaned with some default tolerance. You
+Each property check is performed with some default tolerance. You
 can specify a custom tolerance for each check by specifying a
 `<property>_tolerance` entry. For example, if you wanted to check the
 the length of vector `N` is more than `8` but less than `12`, you
@@ -142,6 +142,33 @@ would specify the expected result like this:
 The `tail_tolerance` and `tip_tolerance` define the maximum allowed
 distance of the vector tail/tip from the point specified by the
 coordinates.
+
+Each property check comes with a default error message that can be
+overriden by specifying a `<property>_errmsg` entry. For example, if
+you want the error message of a `tail_x` check to be something other
+than the default `"Vector N does not start at the correct point"`, you
+would specify the expected result like this:
+
+    expected_result: {
+        N: {tail_x: 5, tail_errmsg: 'N starts at a wrong location, try again.'}
+    }
+
+The custom error messages can use standard python `format`
+placeholders for these vector properties: `name`, `tail_x`, `tail_y`,
+`tip_x`, `tip_y`, `length`, `angle`. You can use them in a custom
+error message like this:
+
+    "The angle of your line is {angle:.1f}, which is not correct."
+
+Presence checks are automatically performed when you specify an entry
+for a vector in `expected_results`. To provide a custom message for
+the presence check (defaults to `"You need to use the {name}
+vector."`), use the `presence_errmsg` setting. Example:
+
+    expected_result: {
+        N: {length: 10, presence_errmsg: You must draw the normal force.'}
+    }
+
 
 #### cusotm_checks
 

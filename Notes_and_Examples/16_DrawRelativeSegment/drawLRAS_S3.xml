@@ -37,9 +37,21 @@ def vglcfn(e, ans):
 
 ## Built-in check functions
 
+def _errmsg(default_message, check, vectors):
+    template = check.get('errmsg', default_message)
+    vec = vectors[check['vector']]
+    return template.format(name=vec.name,
+                           tail_x=vec.tail.x,
+                           tail_y=vec.tail.y,
+                           tip_x=vec.tip.x,
+                           tip_y=vec.tip.y,
+                           length=vec.length,
+                           angle=vec.angle)
+
 def check_presence(check, vectors):
     if check['vector'] not in vectors:
-        return 'You need to use the {} vector.'.format(check['vector'])
+        errmsg = check.get('errmsg', 'You need to use the {name} vector.')
+        return errmsg.format(name=check['vector'])
 
 def check_tail(check, vectors):
     vec = vectors[check['vector']]
@@ -47,7 +59,7 @@ def check_tail(check, vectors):
     expected = check['expected']
     dist = math.hypot(expected[0] - vec.tail.x, expected[1] - vec.tail.y)
     if dist > tolerance:
-        return 'Vector {} does not start at correct point.'.format(vec.name)
+        return _errmsg('Vector {name} does not start at correct point.', check, vectors)
 
 def check_tip(check, vectors):
     vec = vectors[check['vector']]
@@ -55,7 +67,7 @@ def check_tip(check, vectors):
     expected = check['expected']
     dist = math.hypot(expected[0] - vec.tip.x, expected[1] - vec.tip.y)
     if dist > tolerance:
-        return 'Vector {} does not end at correct point.'.format(vec.name)
+        return _errmsg('Vector {name} does not end at correct point.', check, vectors)
 
 def _check_coordinate(check, coord):
     tolerance = check.get('tolerance', 1.0)
@@ -65,22 +77,22 @@ def _check_coordinate(check, coord):
 def check_tail_x(check, vectors):
     vec = vectors[check['vector']]
     if _check_coordinate(check, vec.tail.x):
-        return 'Vector {} does not start at correct point.'.format(vec.name)
+        return _errmsg('Vector {name} does not start at correct point.', check, vectors)
 
 def check_tail_y(check, vectors):
     vec = vectors[check['vector']]
     if _check_coordinate(check, vec.tail.y):
-        return 'Vector {} does not start at correct point.'.format(vec.name)
+        return _errmsg('Vector {name} does not start at correct point.', check, vectors)
 
 def check_tip_x(check, vectors):
     vec = vectors[check['vector']]
     if _check_coordinate(check, vec.tip.x):
-        return 'Vector {} does not end at correct point.'.format(vec.name)
+        return _errmsg('Vector {name} does not end at correct point.', check, vectors)
 
 def check_tip_y(check, vectors):
     vec = vectors[check['vector']]
     if _check_coordinate(check, vec.tip.y):
-        return 'Vector {} does not end at correct point.'.format(vec.name)
+        return _errmsg('Vector {name} does not end at correct point.', check, vectors)
 
 def _coord_delta(expected, actual):
     if expected == '_':
@@ -101,7 +113,7 @@ def check_coords(check, vectors):
     expected = check['expected']
     tolerance = check.get('tolerance', 1.0)
     if not _coords_within_tolerance(vec, expected, tolerance):
-        return 'Vector {} coordinates are not correct.'.format(vec.name)
+        return _errmsg('Vector {name} coordinates are not correct.', check, vectors)
 
 def check_segment_coords(check, vectors):
     vec = vectors[check['vector']]
@@ -109,13 +121,13 @@ def check_segment_coords(check, vectors):
     tolerance = check.get('tolerance', 1.0)
     if not (_coords_within_tolerance(vec, expected, tolerance) or
             _coords_within_tolerance(vec.opposite(), expected, tolerance)):
-        return 'Segment {} coordinates are not correct.'.format(vec.name)
+        return _errmsg('Segment {name} coordinates are not correct.', check, vectors)
 
 def check_length(check, vectors):
     vec = vectors[check['vector']]
     tolerance = check.get('tolerance', 1.0)
     if abs(vec.length - check['expected']) > tolerance:
-        return 'The length of {} is incorrect. Your length: {:.1f}'.format(vec.name, vec.length)
+        return _errmsg('The length of {name} is incorrect. Your length: {length:.1f}', check, vectors)
 
 def _angle_within_tolerance(vec, expected, tolerance):
     # Calculate angle between vec and identity vector with expected angle
@@ -132,7 +144,7 @@ def check_angle(check, vectors):
     tolerance = check.get('tolerance', 2.0)
     expected = math.radians(check['expected'])
     if not _angle_within_tolerance(vec, expected, tolerance):
-        return 'The angle of {} is incorrect. Your angle: {:.1f}'.format(vec.name, vec.angle)
+        return _errmsg('The angle of {name} is incorrect. Your angle: {angle:.1f}', check, vectors)
 
 def check_segment_angle(check, vectors):
     # Segments are not directed, so we must check the angle between the segment and
@@ -142,7 +154,7 @@ def check_segment_angle(check, vectors):
     expected = math.radians(check['expected'])
     if not (_angle_within_tolerance(vec, expected, tolerance) or
             _angle_within_tolerance(vec.opposite(), expected, tolerance)):
-        return 'The angle of {} is incorrect. Your angle: {:.1f}'.format(vec.name, vec.angle)
+        return _errmsg('The angle of {name} is incorrect. Your angle: {angle:.1f}', check, vectors)
 
 
 class Point(object):
@@ -204,7 +216,7 @@ class Grader(object):
 
 ]]>
 </script>
-<p>      
+<p>
 <b>Scenario 3: Now assume that in Econoland input costs decline. Using an upward sloping short-run aggregate supply curve, graph this change.</b>
 </p>
 <p>

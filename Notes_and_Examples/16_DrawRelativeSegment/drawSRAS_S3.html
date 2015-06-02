@@ -43,14 +43,13 @@
               expected_result: {
                  'SRAS1': {segment_coords: [[-5.0, -3.75], [6.0, 6.0]], segment_coords_tolerance: 0.25,
                           segment_coords_errmsg: 'Do not move the SRAS1 curve. Use the reset button to reposition the curve.'},
-                 'SRAS2': {segment_coords: [[-3.75, -5.25], [7.25, 4.75]], segment_coords_tolerance: 2.0, 
-                           segment_angle:41.0, segment_angle_tolerance: 3.0,
+                 'SRAS2': {segment_angle:41.0, segment_angle_tolerance: 3.0,
                            segment_coords_errmsg: 'Either you have drawn the curve incorrectly, or your endpoints are not close enough to the center of a square in the grid.',
                            presence_errmsg: 'Have you drawn the SRAS2 curve?'
                           },
               },
               custom_checks: [
-                  {check: 'check_if_correct_vectors_plotted'}
+                  {check: 'check_sras2_midpoint', x: 1.75, y: -0.25, tolerance: 2.0}
               ]
           };
         </script>

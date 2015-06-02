@@ -3,17 +3,19 @@
 <![CDATA[
 ### Custom Checks ###
 
-def check_if_correct_vectors_plotted(check, vectors):
-    if 'SRAS2' not in vectors:
-        return 'You need to draw the SRAS2 curve.' ### This can be replaced by "presence_errmsg"'
-
-#####
-## Need custom check that compares midpoint of each curve in the x and y direction. This should be custom check for now, 
-## may become a feature in the future.
-#####
+def check_sras2_midpoint(check, vectors):
+    vec = vectors['SRAS2']
+    tolerance = check.get('tolerance', 1.0)
+    mid_x = (vec.tail.x + vec.tip.x) / 2.0
+    mid_y = (vec.tail.y + vec.tip.y) / 2.0
+    expected_x = check.get('x', mid_x)
+    expected_y = check.get('y', mid_y)
+    dist = math.hypot(expected_x - mid_x, expected_y - mid_y)
+    if dist > tolerance:
+        return "You have drawn the curve incorrectly."
 
 custom_checks = {
-  'check_if_correct_vectors_plotted': check_if_correct_vectors_plotted
+  'check_sras2_midpoint': check_sras2_midpoint
 }
 
 

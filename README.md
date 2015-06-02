@@ -84,7 +84,7 @@ These are the supported vector properties:
   automatically, without the user having to add it from the dropdown.
   Defaults to `false`.
 * `style`: Custom style properties. Supports the following options:
-  `label`, `width`, `color`, `pointSize`, `pointColor`.
+  `label`, `width`, `color`, `pointSize`, `pointColor`, `labelColor`.
 * `type`: Supported values are `"vector"` (default) and
   `"segment"`. When set to `"segment"`, the vector is drawn without
   the arrow.

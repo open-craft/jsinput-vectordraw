@@ -158,7 +158,8 @@ VectorDraw.prototype.getVectorStyle = function(vec) {
         pointColor: 'red',
         width: 4,
         color: "blue",
-        label: null
+        label: null,
+        labelColor: 'black'
     };
 
     return _.extend(default_style, vec.style);
@@ -195,6 +196,9 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
         withLabel: true,
         showInfoBox: false
     });
+    // Not sure why, but including labelColor in attributes above doesn't work,
+    // it only works when set explicitly with setAttribute.
+    tip.setAttribute({labelColor: style.labelColor});
 
     var line_type = vec.type === 'segment' ? 'segment' : 'arrow';
     var line = this.board.create(line_type, [tail, tip], {

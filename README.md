@@ -88,6 +88,17 @@ These are the supported vector properties:
 * `type`: Supported values are `"vector"` (default) and
   `"segment"`. When set to `"segment"`, the vector is drawn without
   the arrow.
+* `length_units`: Length units to be displayed in the 'Vector
+  Properties' box (eg. `"mm"`). Defaults to no units.
+* `length_factor`: The factor by which to multiply the length before
+  displaying it in the 'Vector Properties' box. Note that the factor
+  is only applied for display purposes and is ignored in grade
+  checks. Defaults to `1`.
+* `base_angle`: The value to subtract from the vector angle before
+  displaying it in the 'Vector Properties' box. Useful for excercises
+  such as 'box on an incline'. Note that the base angle is only
+  subtracted from the actual angle for display porposes and is ignored
+  in grade checks. Defaults to `0`.
 
 #### points
 

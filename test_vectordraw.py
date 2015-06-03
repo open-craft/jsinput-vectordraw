@@ -110,11 +110,11 @@ class VectorDrawTest(unittest.TestCase):
         self.assertFails(vd.check_coords(self.check([[2, 1], [3, 4]], 0), vectors), errmsg)
         self.assertFails(vd.check_coords(self.check([[3, 4], [1, 2]], 0), vectors), errmsg)
         self.assertFails(vd.check_coords(self.check([[1, 2], [4, 3]], 1), vectors), errmsg)
-        self.assertFails(vd.check_coords(self.check([[-1, -2], [-3, -4]], 0), vectors), errmsg)
+        self.assertFails(vd.check_coords(self.check([[3, 4], [1, 2]], 0), vectors), errmsg)
         self.assertFails(vd.check_coords(self.check([['_', 5], [3, 4]], 1), vectors), errmsg)
         self.assertFails(vd.check_coords(self.check([['_', 2], [1, '_']], 1), vectors), errmsg)
-        self.assertFails(vd.check_coords(self.check([[-2, '_'], ['_', -4]], 1), vectors), errmsg)
-        self.assertFails(vd.check_coords(self.check([['_', '_'], ['_', -4]], 1), vectors), errmsg)
+        self.assertFails(vd.check_coords(self.check([['_', 4], [2, '_']], 1), vectors), errmsg)
+        self.assertFails(vd.check_coords(self.check([['_', 4], ['_', '_']], 1), vectors), errmsg)
         custom_errmsg = 'Wrong coordinates: [{tail_x:.1f},{tail_y:.1f}, {tip_x:.1f},{tip_y:.1f}]'
         self.assertFails(vd.check_coords(self.check([['_', '_'], ['_', -4]], errmsg=custom_errmsg), vectors),
                          custom_errmsg.format(tail_x=1, tail_y=2, tip_x=3, tip_y=4))
@@ -122,17 +122,20 @@ class VectorDrawTest(unittest.TestCase):
     def test_check_segment_coords(self):
         errmsg = 'Segment vec coordinates are not correct.'
         vectors = {'vec': self.vector(1, 2, 3, 4)}
-        self.assertPasses(vd.check_segment_coords(self.check([[1, 2], [3, 4]], 0), vectors))
         self.assertPasses(vd.check_segment_coords(self.check([[1, 3], [4, 4]], 2), vectors))
+        self.assertPasses(vd.check_segment_coords(self.check([[4, 4], [1, 3]], 2), vectors))
         self.assertPasses(vd.check_segment_coords(self.check([['_', 2], [3, '_']], 0), vectors))
+        self.assertPasses(vd.check_segment_coords(self.check([[3, '_'], ['_', 2]], 0), vectors))
         self.assertPasses(vd.check_segment_coords(self.check([[3, '_'], ['_', 5]], 2), vectors))
+        self.assertPasses(vd.check_segment_coords(self.check([['_', 5], [3, '_']], 2), vectors))
         self.assertPasses(vd.check_segment_coords(self.check([['_', '_'], ['_', 3]], 2), vectors))
         self.assertPasses(vd.check_segment_coords(self.check([['_', '_'], ['_', '_']], 0), vectors))
-        self.assertPasses(vd.check_segment_coords(self.check([[-1, -2], [-3, -4]], 0), vectors))
-        self.assertPasses(vd.check_segment_coords(self.check([['_', '_'], ['_', -4]], 1), vectors))
-        self.assertPasses(vd.check_segment_coords(self.check([[-2, '_'], ['_', -4]], 1), vectors))
+        self.assertPasses(vd.check_segment_coords(self.check([[1, 2], [3, 4]], 0), vectors))
+        self.assertPasses(vd.check_segment_coords(self.check([[3, 4], [1, 2]], 0), vectors))
+        self.assertPasses(vd.check_segment_coords(self.check([['_', 4], ['_', '_']], 1), vectors))
+        self.assertPasses(vd.check_segment_coords(self.check([['_', 4], [2, '_']], 1), vectors))
         self.assertFails(vd.check_segment_coords(self.check([[2, 1], [3, 4]], 0), vectors), errmsg)
-        self.assertFails(vd.check_segment_coords(self.check([[3, 4], [1, 2]], 0), vectors), errmsg)
+        self.assertFails(vd.check_segment_coords(self.check([[-1, -2], [-3, -4]], 0), vectors), errmsg)
         self.assertFails(vd.check_segment_coords(self.check([[1, 2], [4, 3]], 1), vectors), errmsg)
         self.assertFails(vd.check_segment_coords(self.check([['_', 5], [3, 4]], 1), vectors), errmsg)
         self.assertFails(vd.check_segment_coords(self.check([['_', 2], [1, '_']], 1), vectors), errmsg)
@@ -154,13 +157,13 @@ class VectorDrawTest(unittest.TestCase):
 
     def test_check_angle(self):
         errmsg = 'The angle of vec is incorrect. Your angle: 45.0'
-        vectors = {'vec': self.vector(0, 0, 5, 5)}
-        self.assertPasses(vd.check_angle(self.check(45, 0), vectors))
-        self.assertPasses(vd.check_angle(self.check(-315, 0), vectors))
-        self.assertPasses(vd.check_angle(self.check(405, 0), vectors))
+        vectors = {'vec': self.vector(1, 1, 5, 5)}
+        self.assertPasses(vd.check_angle(self.check(45, 0.1), vectors))
+        self.assertPasses(vd.check_angle(self.check(-315, 0.1), vectors))
+        self.assertPasses(vd.check_angle(self.check(405, 0.1), vectors))
         self.assertPasses(vd.check_angle(self.check(-5, 55), vectors))
         self.assertPasses(vd.check_angle(self.check(42, 5), vectors))
-        self.assertFails(vd.check_angle(self.check(315, 0), vectors), errmsg)
+        self.assertFails(vd.check_angle(self.check(315, 0.1), vectors), errmsg)
         self.assertFails(vd.check_angle(self.check(30, 9), vectors), errmsg)
         custom_errmsg = 'Adjust angle of {name}. Currently: {angle:.0f}.'
         self.assertFails(vd.check_angle(self.check(30, 9, errmsg=custom_errmsg), vectors),
@@ -168,13 +171,13 @@ class VectorDrawTest(unittest.TestCase):
 
     def test_check_segment_angle(self):
         errmsg = 'The angle of vec is incorrect. Your angle: 45.0'
-        vectors = {'vec': self.vector(0, 0, 5, 5)}
-        self.assertPasses(vd.check_segment_angle(self.check(45, 0), vectors))
-        self.assertPasses(vd.check_segment_angle(self.check(-315, 0), vectors))
-        self.assertPasses(vd.check_segment_angle(self.check(405, 0), vectors))
+        vectors = {'vec': self.vector(1, 1, 5, 5)}
+        self.assertPasses(vd.check_segment_angle(self.check(45, 0.1), vectors))
+        self.assertPasses(vd.check_segment_angle(self.check(-315, 0.1), vectors))
+        self.assertPasses(vd.check_segment_angle(self.check(405, 0.1), vectors))
         self.assertPasses(vd.check_segment_angle(self.check(42, 5), vectors))
-        self.assertFails(vd.check_segment_angle(self.check(-405, 0), vectors), errmsg)
-        self.assertFails(vd.check_segment_angle(self.check(315, 0), vectors), errmsg)
+        self.assertFails(vd.check_segment_angle(self.check(-405, 0.1), vectors), errmsg)
+        self.assertFails(vd.check_segment_angle(self.check(315, 0.1), vectors), errmsg)
         self.assertFails(vd.check_segment_angle(self.check(-45, 9), vectors), errmsg)
         custom_errmsg = 'Segment angle is incorrect.'
         self.assertFails(vd.check_segment_angle(self.check(-45, 9, errmsg=custom_errmsg), vectors),

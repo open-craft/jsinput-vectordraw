@@ -97,7 +97,7 @@ These are the supported vector properties:
 * `base_angle`: The value to subtract from the vector angle before
   displaying it in the 'Vector Properties' box. Useful for excercises
   such as 'box on an incline'. Note that the base angle is only
-  subtracted from the actual angle for display porposes and is ignored
+  subtracted from the actual angle for display purposes and is ignored
   in grade checks. Defaults to `0`.
 
 #### points

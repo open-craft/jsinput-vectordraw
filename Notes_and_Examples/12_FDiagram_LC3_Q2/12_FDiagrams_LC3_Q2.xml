@@ -176,7 +176,7 @@ class Vector(object):
         self.angle = angle
 
     def opposite(self):
-        return Vector(self.name, -self.tail.x, -self.tail.y, -self.tip.x, -self.tip.y)
+        return Vector(self.name, self.tip.x, self.tip.y, self.tail.x, self.tail.y)
 
 class Grader(object):
     check_registry = {

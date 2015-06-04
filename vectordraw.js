@@ -158,7 +158,8 @@ VectorDraw.prototype.getVectorStyle = function(vec) {
         pointColor: 'red',
         width: 4,
         color: "blue",
-        label: null
+        label: null,
+        labelColor: 'black'
     };
 
     return _.extend(default_style, vec.style);
@@ -195,6 +196,9 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
         withLabel: true,
         showInfoBox: false
     });
+    // Not sure why, but including labelColor in attributes above doesn't work,
+    // it only works when set explicitly with setAttribute.
+    tip.setAttribute({labelColor: style.labelColor});
 
     var line_type = vec.type === 'segment' ? 'segment' : 'arrow';
     var line = this.board.create(line_type, [tail, tip], {
@@ -285,17 +289,28 @@ VectorDraw.prototype.getVectorForObject = function(obj) {
     return null;
 };
 
+VectorDraw.prototype.getVectorSettingsByName = function(name) {
+    return _.find(this.settings.vectors, function(vec) {
+        return vec.name === name;
+    });
+};
+
 VectorDraw.prototype.updateVectorProperties = function(vector) {
+    var vec_settings = this.getVectorSettingsByName(vector.name);
+    var length_factor = vec_settings.length_factor || 1;
+    var length_units = vec_settings.length_units || '';
+    var base_angle = vec_settings.base_angle || 0;
     var x1 = vector.point1.X(),
         y1 = vector.point1.Y(),
         x2 = vector.point2.X(),
         y2 = vector.point2.Y();
-    var length = Math.sqrt(Math.pow(x2-x1, 2) + Math.pow(y2-y1, 2)),
-        angle = Math.atan2(y2-y1, x2-x1)/Math.PI*180;
-    if (angle < 0)
+    var length = length_factor * Math.sqrt(Math.pow(x2-x1, 2) + Math.pow(y2-y1, 2));
+    var angle = ((Math.atan2(y2-y1, x2-x1)/Math.PI*180) - base_angle) % 360;
+    if (angle < 0) {
         angle += 360;
+    }
     $('.vector-prop-name .value', this.element).html(vector.point2.name); // labels are stored as point2 names
-    $('.vector-prop-length .value', this.element).html(length.toFixed(2));
+    $('.vector-prop-length .value', this.element).html(length.toFixed(2) + ' ' + length_units);
     $('.vector-prop-angle .value', this.element).html(angle.toFixed(2));
 };
 

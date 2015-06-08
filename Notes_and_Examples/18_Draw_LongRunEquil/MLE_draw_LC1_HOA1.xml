@@ -1,0 +1,35 @@
+<problem display_name="webGLDemo">
+<script type="loncapa/python">
+<![CDATA[
+### Custom Checks ###
+
+custom_checks = {}
+
+success_message = 'Good job!'
+
+
+#################################################
+### Python API - Do not edit after this line ####
+#################################################
+
+from VectorTest import *
+
+]]>
+</script>
+<p>
+<b>Draw the Supply and Demand Curves for a scenario of "Real Interest Rate" versus the "Quantity of Loanable Funds".</b>
+</p>
+<p>
+Use your mouse (or finger on a tablet), to draw the appropriate curves.
+</p>
+<customresponse cfn="vglcfn">
+  <jsinput gradefn="getInput"
+    get_statefn="getState"
+    set_statefn="setState"
+    initial_state='{}'
+    width="800"
+    height="480"
+    html_file="/static/MLE_draw_LC1_HOA1.html"
+    />
+</customresponse>
+</problem>

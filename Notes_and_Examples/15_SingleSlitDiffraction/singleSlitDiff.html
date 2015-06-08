@@ -15,6 +15,8 @@
         <div id="vectordraw" />
         <script type="text/javascript">
           // Background image, vectors, and points are defined below.
+          var vecColors = ['MediumSpringGreen','Lime','LimeGreen'];
+          var pointColors = ['White','White','White'];
           var vectordraw_settings = {
               width: 550,
               height: 250,
@@ -22,13 +24,13 @@
               add_vector_label: "Add Ruler",
               vector_properties_label: "Ruler Properties",
               background: {
-                  src: '/c4x/DavidsonNext/Ann101/asset/DI_lab_red.jpg',
-                  width: 100
+                  src: '/c4x/DavidsonNext/Ann101/asset/DI_Double_red.jpg',
+                  width: 400
               },
               vectors: [
-                    {name: 'R1', length_factor: 0.01, length_units:"mm", type:"segment", description: 'Ruler #1', coords: [[2, -2], [2, 6]], render: false, style:{color:"MediumSpringGreen", labelColor:"MediumSpringGreen", width:"5"}},
-                    {name: 'R2', length_factor: 0.01, length_units:"mm", type:"segment", description: 'Ruler #2', coords: [[3, -2], [3, 6]], render: false, style:{color:"Lime", labelColor:"LimeGreen", width:"5"}},
-                    {name: 'R3', length_factor: 0.01, length_units:"mm", type:"segment", description: 'Ruler #3', coords: [[4, -2], [4, 6]], render: false, style:{color:"LimeGreen", labelColor:"LimeGreen", width:"5"}},
+                    {name: 'R1', length_factor: 0.01, length_units:"mm", type:"segment", description: 'Ruler #1', coords: [[2, -2], [2, 6]], render: false, style:{color:vecColors[0], labelColor:vecColors[0], pointColor:pointColors[0], width:"5"}},
+                    {name: 'R2', length_factor: 0.01, length_units:"mm", type:"segment", description: 'Ruler #2', coords: [[3, -2], [3, 6]], render: false, style:{color:vecColors[1], labelColor:vecColors[1], pointColor:pointColors[1], width:"5"}},
+                    {name: 'R3', length_factor: 0.01, length_units:"mm", type:"segment", description: 'Ruler #3', coords: [[4, -2], [4, 6]], render: false, style:{color:vecColors[2], labelColor:vecColors[2], pointColor:pointColors[2], width:"5"}},
               ],
               // points: [{name: 'S1', coords: [-4, -4.5], style:{color:'DodgerBlue'}},
               //          {name: 'S2', coords: [5, 5], style:{color:'DodgerBlue'}},

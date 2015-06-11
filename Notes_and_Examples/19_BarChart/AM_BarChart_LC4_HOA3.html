@@ -48,10 +48,9 @@
                        segment_angle_errmsg: 'Your bar chart should be oriented as close to vertical as possible.'
                      },
               },
-              // custom_checks: [
-              //     {check: 'check_sras2_midpoint', x: 1.75, y: -0.25, tolerance: 3.0},
-              //     {check: 'check_sras2_rel_sras1'}
-              // ]
+              custom_checks: [
+                  {check: 'check_x_location', x: 0.5, tolerance: 1.0}
+              ]
           };
         </script>
 

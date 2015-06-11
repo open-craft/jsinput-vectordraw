@@ -7,12 +7,11 @@ custom_checks = {}
 
 success_message = 'Good job!'
 
-
 #################################################
 ### Python API - Do not edit after this line ####
 #################################################
-
-from VectorTest import *
+import HelloWorld
+import vectordraw
 
 ]]>
 </script>

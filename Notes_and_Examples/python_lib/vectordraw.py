@@ -1,3 +1,19 @@
+# The contents of this file need to be pasted into the loncapa/python
+# script tag of the problem XML definition - see api-example.xml for
+# an example.
+
+
+# If you need custom checks, define them here.
+custom_checks = {}
+
+# The message shown to the student when all checks are successful.
+success_message = 'Good job!'
+
+
+#################################################
+### Python API - Do not edit after this line ####
+#################################################
+
 import json
 import math
 
@@ -150,3 +166,40 @@ class Vector(object):
     def opposite(self):
         return Vector(self.name, self.tip.x, self.tip.y, self.tail.x, self.tail.y)
 
+class Grader(object):
+    check_registry = {
+        'presence': check_presence,
+        'tail': check_tail,
+        'tip': check_tip,
+        'tail_x': check_tail_x,
+        'tail_y': check_tail_y,
+        'tip_x': check_tip_x,
+        'tip_y': check_tip_y,
+        'coords': check_coords,
+        'length': check_length,
+        'angle': check_angle,
+        'segment_angle': check_segment_angle,
+        'segment_coords': check_segment_coords,
+    }
+
+    def __init__(self, answer, custom_checks, success_message='Test passed'):
+        self.answer = answer
+        self.check_registry.update(custom_checks)
+        self.success_message = success_message
+
+    def grade(self):
+        for check in self.answer['checks']:
+            check_fn = self.check_registry[check['check']]
+            result = check_fn(check, self._get_vectors())
+            if result:
+                return {'ok': False, 'msg': result}
+
+        return {'ok': True, 'msg': self.success_message}
+
+    def _get_vectors(self):
+        vectors = {}
+        for name, props in self.answer['vectors'].iteritems():
+            tail = props['tail']
+            tip = props['tip']
+            vectors[name] = Vector(name, tail[0], tail[1], tip[0], tip[1])
+        return vectors

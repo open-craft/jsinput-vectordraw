@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+        <link href="https://dnextinteractives.s3.amazonaws.com/Physics/JS/vectordraw.css" rel="stylesheet" type="text/css" />
+    </head>
+
+    <body>
+        <div id="vectordraw" />
+        <script type="text/javascript">
+          // Background image, vectors, and points are defined below.
+          var vectordraw_settings = {
+              width: 550,
+              height: 450,
+              bounding_box_size: 8,
+              background: {
+                  src: 'https://dnextinteractives.s3.amazonaws.com/Physics/Force_Diagrams/LC1/canvasLC1HOA2.png',
+                  width: 20
+              },
+              
+              //length factor is 13.0/3.0
+              vectors: [
+                  {name: 'F<sub>1</sub>', description: 'Force 1', length_factor: 4.333, length: 3.0, angle: 57.5, tail: [0.0,0.4], render: true,
+                           style:{color:"Crimson", width:"7"}},
+                  {name: 'F<sub>2</sub>', description: 'Force 2', length_factor: 4.333, length: 5.42, angle: 12.3, tail: [0.0,0.4], render: true,
+                           style:{color:"Crimson", width:"7"}},
+                  {name: 'F<sub>Net</sub>', description: 'F Net', length_factor: 4.333, coords: [[3, -2], [3, 6]], render: false,
+                           style:{color:"Lime", width:"7"}},
+              ],
+              // points: [{name: 'TopLeft', coords: [-4.75, 6.25], style:{color:'DodgerBlue'}},
+              //          {name: 'BotLeft', coords: [-4.75, -4.25], style:{color:'DodgerBlue'}},
+              //          {name: 'TopRight', coords: [7.0, 6.25], style:{color:'DodgerBlue'}},
+              //          {name: 'BotRight', coords: [7.0, -4.25], style:{color:'Crimson'}},
+              //          {name: 'Center', coords: [0.0,0.5], style:{color:'DodgerBlue'}},
+              //          {name: 'MidLeft', coords: [-4.75,1], style:{color:'DodgerBlue'}},
+              //          {name: 'MidRight', coords: [7.0,1], style:{color:'DodgerBlue'}},
+              //          {name: 'tail', coords: [1.6, 3.0], style:{color:'DodgerBlue'}}
+              // ],
+              expected_result: {
+                  'F<sub>1</sub>': {tail: [0.0,0.4], tail_tolerance: 0.25, length: 3.0, length_tolerance:  0.4, length_errmsg: "Recheck the length of F<sub>1</sub>.", angle: 57.51, angle_tolerance: 1.0,},
+                  'F<sub>2</sub>': {tail: [1.6, 3.0], tail_tolerance: 0.25, length: 5.42, length_tolerance:  0.4, length_errmsg: "Recheck the length of F<sub>2</sub>.", angle: 12.31, angle_tolerance: 1.0},               
+                  'F<sub>Net</sub>': {tail: [0.0,0.4], length: 7.876, length_tolerance: 0.4, angle: 28.0, angle_tolerance: 1.0, length_errmsg: "Recheck the length of F<sub>Net</sub>."}
+              },
+              // custom_checks: [ //****Consider adding custom check that looks at sum of forces and angle change.
+              // ]
+          };
+        </script>
+
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.2/underscore-min.js"></script>
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jsxgraph/0.98/jsxgraphcore.js"></script>
+        <script type="text/javascript" src="https://dnextinteractives.s3.amazonaws.com/Physics/JS/vectordraw.js"></script>
+    </body>
+</html>
+

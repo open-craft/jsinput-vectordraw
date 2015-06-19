@@ -1,18 +1,7 @@
 <problem display_name="webGLDemo">
 <script type="loncapa/python">
 <![CDATA[
-### Custom Checks ###
-
-custom_checks = {}
-
-success_message = 'Good job!'
-
-#################################################
-### Python API - Do not edit after this line ####
-#################################################
-import HelloWorld
 import vectordraw
-
 ]]>
 </script>
 <p>
@@ -21,7 +10,7 @@ import vectordraw
 <p>
 Use your mouse (or finger on a tablet), to draw the appropriate curves.
 </p>
-<customresponse cfn="vglcfn">
+<customresponse cfn="vectordraw.vglcfn">
   <jsinput gradefn="getInput"
     get_statefn="getState"
     set_statefn="setState"

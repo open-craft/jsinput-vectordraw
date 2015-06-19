@@ -1,6 +1,5 @@
-# The contents of this file need to be pasted into the loncapa/python
-# script tag of the problem XML definition - see api-example.xml for
-# an example.
+# Please recreate pyton_lib.zip after you modify this file:
+#   zip python_lib.zip vectordraw.py
 
 
 # If you need custom checks, define them here.

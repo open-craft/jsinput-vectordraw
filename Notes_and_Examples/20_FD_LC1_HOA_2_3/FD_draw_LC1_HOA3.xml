@@ -1,0 +1,34 @@
+<problem display_name="Draw Force Diagram">
+<script type="loncapa/python">
+<![CDATA[
+import vectordraw
+grader = vectordraw.Grader()
+]]>
+</script>
+
+<p>
+Using the same data and setup from the previous on-paper activity, check your work by constructing a Free Body Diagram using the vector drawing tool below. If you have troulbe with this activity, you can download a similar application created by PhET (<a href="https://phet.colorado.edu/en/simulation/vector-addition" target="_blank">https://phet.colorado.edu/en/simulation/vector-addition</a>). 
+</p>
+<p>
+The vector drawing tool below is easy to use. You can add vectors by simply clicking or touching the screen. You can then manipulate magnitude and direction by clicking/dragging the tip of each vector.
+</p>
+  
+<p>
+<b>You can use the vector properties information to line up your vectors. Note, you only need to get close to the exact values given for each vector.</b>
+  </p>
+
+<p>
+<img src="https://dnextinteractives.s3.amazonaws.com/Physics/Force_Diagrams/LC1/canvasLC1HOA2_table.png"/>
+</p>
+
+<customresponse cfn="grader.cfn">
+  <jsinput gradefn="getInput"
+    get_statefn="getState"
+    set_statefn="setState"
+    initial_state='{}'
+    width="800"
+    height="480"
+    html_file="/static/FD_draw_LC1_HOA3.html"
+    />
+</customresponse>
+</problem>

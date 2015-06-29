@@ -4,8 +4,8 @@ Vector drawing exercises with JSInput.
 
 ## Installation
 
-* Upload `vectordraw.js` and `vectordraw.css` to the *Files* section
-  in the Studio.
+* Upload `python_lib.zip`, `vectordraw.js` and `vectordraw.css` to the
+  *Files* section in the Studio.
 * Choose one of the problems from the `Notes_and_Examples` directory,
   for example `2_boxIncline_multiVector`.
 * Open the `2_boxIncline.html` file and change the lines that contain

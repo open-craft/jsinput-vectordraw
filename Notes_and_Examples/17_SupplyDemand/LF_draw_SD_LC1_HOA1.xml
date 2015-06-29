@@ -1,4 +1,4 @@
-<problem display_name="Vector Draw - Protractor">
+<problem display_name="webGLDemo">
 <script type="loncapa/python">
 <![CDATA[
 import vectordraw
@@ -6,8 +6,10 @@ grader = vectordraw.Grader()
 ]]>
 </script>
 <p>
-Draw a vector whose angle is 31 degrees relative to the positive x direction. <i>Note,
-be sure that your vector starts from the center of the protractor, and ends at the outsideedge with the appropriate angle.</i>
+<b>Draw the Supply and Demand Curves for a scenario of "Real Interest Rate" versus the "Quantity of Loanable Funds".</b>
+</p>
+<p>
+Use your mouse (or finger on a tablet), to draw the appropriate curves.
 </p>
 <customresponse cfn="grader.cfn">
   <jsinput gradefn="getInput"
@@ -16,8 +18,7 @@ be sure that your vector starts from the center of the protractor, and ends at t
     initial_state='{}'
     width="800"
     height="480"
-    html_file="/static/1_protractor.html"
+    html_file="/static/LF_draw_SD_LC1_HOA1.html"
     />
 </customresponse>
 </problem>
-

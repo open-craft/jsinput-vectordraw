@@ -1,0 +1,45 @@
+<problem display_name="webGLDemo">
+<script type="loncapa/python">
+<![CDATA[
+import vectordraw
+
+### Custom Checks ###
+
+def check_x_location(check, vectors):
+    vec = vectors['Impulse']
+    tolerance = check.get('tolerance', 1.0)
+    expected_x = check.get('x', vec.tail.x)
+    dist = abs(expected_x - vec.tail.x)
+    if dist > tolerance:
+        return "Please make sure your new bar is positioned in the center of the middle graphic."
+
+
+custom_checks = {
+    'check_x_location': check_x_location
+}
+
+success_message = 'Good job!'
+
+grader = vectordraw.Grader(success_message, custom_checks)
+]]>
+</script>
+<p>
+A person is on a merry-go-round. The bar chart below describes the beginning and ending states of the merry-go-round.
+</p>
+<p>
+<b>Complete the bar chart by providing a value for the impulse using the drawing tool.</b>
+</p>
+<p>
+Use your mouse (or finger on a tablet), to draw the appropriate bar to complete the graph. Please make sure your new bar is positioned in the center of the middle graphic.
+</p>
+<customresponse cfn="grader.cfn">
+  <jsinput gradefn="getInput"
+    get_statefn="getState"
+    set_statefn="setState"
+    initial_state='{}'
+    width="800"
+    height="480"
+    html_file="/static/AM_BarChart_LC4_HOA3.html"
+    />
+</customresponse>
+</problem>

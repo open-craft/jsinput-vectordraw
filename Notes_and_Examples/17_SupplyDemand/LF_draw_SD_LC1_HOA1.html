@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+        <link href="/c4x/DavidsonCollege/DAP002/asset/vectordraw.css" rel="stylesheet" type="text/css" />
+        <!-- Default styles can be overriden here -->
+        <style type="text/css">
+            .jxgboard {
+                box-shadow: 0 1px 3px #666;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="vectordraw" />
+        <script type="text/javascript">
+          // Background image, vectors, and points are defined below.
+          var vectordraw_settings = {
+              width: 550,
+              height: 450,
+              bounding_box_size: 8,
+              add_vector_label: "Add Curve",
+              background: {
+                  src: '/c4x/DavidsonNext/Ann101/asset/PL_vs_RGDP.png',
+                  width: 18
+              },
+              vectors: [
+                    {name: 'S', type:"segment", description: 'Supply', coords: [[-2,-1 ], [3, 4]], render: false,
+                           style:{color:"DarkGray", width:"7"}},
+                    {name: 'D', type:"segment", description: 'Demand', coords: [[-2, -1], [3, 4]], render: false,
+                           style:{color:"DodgerBlue", width:"7"}},
+              ],
+              // points: [{name: 'TopLeft', coords: [-4.75, 6.25], style:{color:'DodgerBlue'}},
+              //          {name: 'BotLeft', coords: [-4.75, -4.25], style:{color:'DodgerBlue'}},
+              //          {name: 'TopRight', coords: [7.0, 6.25], style:{color:'DodgerBlue'}},
+              //          {name: 'BotRight', coords: [7.0, -4.25], style:{color:'Crimson'}},
+              //          {name: 'Center', coords: [1,1], style:{color:'DodgerBlue'}},
+              //          {name: 'MidLeft', coords: [-4.75,1], style:{color:'DodgerBlue'}},
+              //          {name: 'MidRight', coords: [7.0,1], style:{color:'DodgerBlue'}},
+              //          {name: 'Curve1', coords: [-3.75, -5.25], style:{color:'DodgerBlue'}},
+              //          {name: 'Curve2', coords: [7.25, 4.75], style:{color:'DodgerBlue'}}
+              // ],
+              expected_result: {
+                 'S': {segment_coords: [[-4.75, -4.25], [7.0, 6.25]], segment_coords_tolerance: 1.5,
+                       presence_errmsg: 'Have you drawn the Supply curve?',
+                       // segment_angle: 41.0, segment_angle_tolerance: 3.0, 
+                       // segment_angle_errmsg: 'Your Supply curve angle should be close to 41 degrees based on this graph layout.'
+                     },
+                 'D': {segment_coords: [[-4.75, 6.25], [7.0, -4.25]], segment_coords_tolerance: 1.5,
+                       segment_coords_errmsg: 'Your endpoints are incorrect. Be sure the label is in the correct location.',
+                       presence_errmsg: 'Have you drawn the Demand curve?',
+                       // segment_angle:131.0, segment_angle_tolerance: 3.0,
+                       // segment_angle_errmsg: 'Your Demand curve angle should be close to 138 degrees based on the graph layout.'
+                     },
+              },
+              // custom_checks: [
+              //     {check: 'check_sras2_midpoint', x: 1.75, y: -0.25, tolerance: 3.0},
+              //     {check: 'check_sras2_rel_sras1'}
+              // ]
+          };
+        </script>
+
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.2/underscore-min.js"></script>
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jsxgraph/0.98/jsxgraphcore.js"></script>
+        <script type="text/javascript" src="/c4x/DavidsonCollege/DAP002/asset/vectordraw.js"></script>
+    </body>
+</html>

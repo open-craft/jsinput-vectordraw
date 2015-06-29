@@ -2,6 +2,7 @@
 <script type="loncapa/python">
 <![CDATA[
 import vectordraw
+grader = vectordraw.Grader()
 ]]>
 </script>
 <p>
@@ -18,7 +19,7 @@ The vector drawing tool below is easy to use. You can add vectors by simply clic
 <b>You can use the vector properties information to line up your vectors. Note, you only need to get close to the exact values given for each vector.</b>
   </p>
   
-<customresponse cfn="vectordraw.vglcfn">
+<customresponse cfn="grader.cfn">
   <jsinput gradefn="getInput"
     get_statefn="getState"
     set_statefn="setState"

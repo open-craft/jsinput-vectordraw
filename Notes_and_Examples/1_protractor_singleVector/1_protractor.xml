@@ -2,13 +2,14 @@
 <script type="loncapa/python">
 <![CDATA[
 import vectordraw
+grader = vectordraw.Grader()
 ]]>
 </script>
 <p>
 Draw a vector whose angle is 31 degrees relative to the positive x direction. <i>Note,
 be sure that your vector starts from the center of the protractor, and ends at the outsideedge with the appropriate angle.</i>
 </p>
-<customresponse cfn="vectordraw.vglcfn">
+<customresponse cfn="grader.cfn">
   <jsinput gradefn="getInput"
     get_statefn="getState"
     set_statefn="setState"

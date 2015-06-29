@@ -11,12 +11,13 @@ def check_compare_normal_and_gravity_lengths(check, vectors):
     if abs(normal.length - gravity.length) > 1.0:
         return 'Normal Force and Gravitational Force should be similar lengths.'
 
-vectordraw.custom_checks = {
+custom_checks = {
   'compare_normal_and_gravity_lengths': check_compare_normal_and_gravity_lengths
 }
 
-vectordraw.success_message = 'Good job!'
+success_message = 'Good job!'
 
+grader = vectordraw.Grader(success_message, custom_checks)
 ]]>
 </script>
 <p>
@@ -25,7 +26,7 @@ A car is moving in the positive x-direction and is slowing down. Draw the approp
 <p>
   <i>Be sure that the "tail" of each vector starts at the center of mass.</i> Also try to break this - I have error messages for most possible situations.
 </p>
-<customresponse cfn="vectordraw.vglcfn">
+<customresponse cfn="grader.cfn">
   <jsinput gradefn="getInput"
     get_statefn="getState"
     set_statefn="setState"

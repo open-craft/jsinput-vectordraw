@@ -8,12 +8,13 @@ def check_if_correct_vectors_plotted(check, vectors):
     if L == 0:
         return 'You have not drawn a ruler. Please make sure you have made at least one measurement.'
 
-vectordraw.custom_checks = {
+custom_checks = {
   'check_if_correct_vectors_plotted': check_if_correct_vectors_plotted
 }
 
-vectordraw.success_message = 'Good job!'
+success_message = 'Good job!'
 
+grader = vectordraw.Grader(success_message, custom_checks)
 ]]>
 </script>
 <p>
@@ -22,7 +23,7 @@ Draw rulers using your mouse to measure lengths in the image. The Ruler Properti
 <p>
   <i>Testing segment tool as a measurement device.</i>
 </p>
-<customresponse cfn="vectordraw.vglcfn">
+<customresponse cfn="grader.cfn">
   <jsinput gradefn="getInput"
     get_statefn="getState"
     set_statefn="setState"

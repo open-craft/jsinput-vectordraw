@@ -10,11 +10,13 @@ def check_compare_normal_and_gravity_lengths(check, vectors):
     if (gravity.length - normal.length) < 0.5:
         return 'Gravitational Force should be larger than the Normal Force.'
 
-vectordraw.custom_checks = {
+custom_checks = {
   'compare_normal_and_gravity_lengths': check_compare_normal_and_gravity_lengths
 }
 
-vectordraw.success_message = 'Good job!'
+success_message = 'Good job!'
+
+grader = vectordraw.Grader(success_message, custom_checks)
 ]]>
 </script>
 <img src="/static/Davidson_EdX-51.png" width="901" height="112"/>
@@ -22,7 +24,7 @@ vectordraw.success_message = 'Good job!'
 <p>
   <i>This is a vector drawing problem type. Use your mouse, or the "add vector" button, to place and drag vectors to the blue points. Be sure to place the correctly labeled vector at the appropriate location. </i>
 </p>
-<customresponse cfn="vectordraw.vglcfn">
+<customresponse cfn="grader.cfn">
   <jsinput gradefn="getInput"
     get_statefn="getState"
     set_statefn="setState"

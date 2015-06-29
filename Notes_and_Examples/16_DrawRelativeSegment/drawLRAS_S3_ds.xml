@@ -32,14 +32,15 @@ def check_sras2_rel_sras1(check, vectors):
     if dist_x < 0 or dist_y > 0:
         return "Something is wrong with your solution."
 
-vectordraw.custom_checks = {
+custom_checks = {
   'check_sras2_midpoint': check_sras2_midpoint,
   'check_sras2_rel_sras1': check_sras2_rel_sras1
 }
 
 
-vectordraw.success_message = 'Good job!'
+success_message = 'Good job!'
 
+grader = vectordraw.Grader(success_message, custom_checks)
 ]]>
 </script>
 <p>
@@ -48,7 +49,7 @@ vectordraw.success_message = 'Good job!'
 <p>
 Use your mouse (or finger on a tablet), to draw the new SRAS curve.
 </p>
-<customresponse cfn="vectordraw.vglcfn">
+<customresponse cfn="grader.cfn">
   <jsinput gradefn="getInput"
     get_statefn="getState"
     set_statefn="setState"

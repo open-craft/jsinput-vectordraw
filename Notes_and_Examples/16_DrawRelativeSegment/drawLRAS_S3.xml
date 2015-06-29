@@ -16,14 +16,14 @@ def check_sras2_midpoint(check, vectors):
     if dist > tolerance:
         return "You have drawn the curve incorrectly."
 
-vectordraw.custom_checks = {
+custom_checks = {
   'check_sras2_midpoint': check_sras2_midpoint
 }
 
 
-vectordraw.success_message = 'Good job!'
+success_message = 'Good job!'
 
-
+grader = vectordraw.Grader(success_message, custom_checks)
 ]]>
 </script>
 <p>
@@ -32,7 +32,7 @@ vectordraw.success_message = 'Good job!'
 <p>
 Use your mouse (or finger on a tablet), to draw the new SRAS curve.
 </p>
-<customresponse cfn="vectordraw.vglcfn">
+<customresponse cfn="grader.cfn">
   <jsinput gradefn="getInput"
     get_statefn="getState"
     set_statefn="setState"

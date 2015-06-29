@@ -8,12 +8,13 @@ def check_if_correct_vectors_plotted(check, vectors):
     if 'D' in vectors or 'LRAS' in vectors:
         return 'You have plotted more than the requested number of curves.'
 
-vectordraw.custom_checks = {
+custom_checks = {
   'check_if_correct_vectors_plotted': check_if_correct_vectors_plotted
 }
 
-vectordraw.success_message = 'Good job!'
+success_message = 'Good job!'
 
+grader = vectordraw.Grader(success_message, custom_checks)
 ]]>
 </script>
 <p>
@@ -22,7 +23,7 @@ Draw your typical supply / demand relationship.
 <p>
   <i>Testing segment tool.</i>
 </p>
-<customresponse cfn="vectordraw.vglcfn">
+<customresponse cfn="grader.cfn">
   <jsinput gradefn="getInput"
     get_statefn="getState"
     set_statefn="setState"

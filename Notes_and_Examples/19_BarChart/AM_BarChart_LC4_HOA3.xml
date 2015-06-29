@@ -14,11 +14,13 @@ def check_x_location(check, vectors):
         return "Please make sure your new bar is positioned in the center of the middle graphic."
 
 
-vectordraw.custom_checks = {
+custom_checks = {
     'check_x_location': check_x_location
 }
 
-vectordraw.success_message = 'Good job!'
+success_message = 'Good job!'
+
+grader = vectordraw.Grader(success_message, custom_checks)
 ]]>
 </script>
 <p>
@@ -30,7 +32,7 @@ A person is on a merry-go-round. The bar chart below describes the beginning and
 <p>
 Use your mouse (or finger on a tablet), to draw the appropriate bar to complete the graph. Please make sure your new bar is positioned in the center of the middle graphic.
 </p>
-<customresponse cfn="vectordraw.vglcfn">
+<customresponse cfn="grader.cfn">
   <jsinput gradefn="getInput"
     get_statefn="getState"
     set_statefn="setState"

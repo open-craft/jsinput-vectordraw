@@ -2,6 +2,7 @@
 <script type="loncapa/python">
 <![CDATA[
 import vectordraw
+grader = vectordraw.Grader()
 ]]>
 </script>
 
@@ -20,7 +21,7 @@ The vector drawing tool below is easy to use. You can add vectors by simply clic
 <img src="https://dnextinteractives.s3.amazonaws.com/Physics/Force_Diagrams/LC1/canvasLC1HOA2_table.png"/>
 </p>
 
-<customresponse cfn="vectordraw.vglcfn">
+<customresponse cfn="grader.cfn">
   <jsinput gradefn="getInput"
     get_statefn="getState"
     set_statefn="setState"

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+        <link href="https://dnextinteractives.s3.amazonaws.com/Physics/JS/vectordraw.css" rel="stylesheet" type="text/css" />
+    </head>
+
+    <body>
+        <div id="vectordraw" />
+        <script type="text/javascript">
+          // Background image, vectors, and points are defined below.
+          var vectordraw_settings = {
+              width: 550,
+              height: 450,
+              bounding_box_size: 8,
+			  add_vector_label: "Add Line",
+			  vector_properties_label: "Line Properties",
+              background: {
+                  src: "https://dnextinteractives.s3.amazonaws.com/content_calculus/Implicit_Differentiation/LC1/imdif4.1.1.1.png",
+                  width: 20
+              },
+              
+              //length factor is 13.0/3.0
+              vectors: [
+                  {name: 'Tangent', type:"segment", description: 'Tangent Line', length_factor: 4.333, length: 3.0, angle: 57.5, tail: [0.0,0.4], render: true,
+                           style:{color:"DodgerBlue", width:"5"}},
+              ],
+              // points: [{name: 'TopLeft', coords: [-4, 4], style:{color:'DodgerBlue'}},
+//                        {name: 'BotLeft', coords: [-4, -4], style:{color:'DodgerBlue'}},
+//                        {name: 'TopRight', coords: [4, 4], style:{color:'DodgerBlue'}},
+//                        {name: 'BotRight', coords: [4, -4], style:{color:'Crimson'}},
+//                        {name: 'Center', coords: [0.0,0], style:{color:'DodgerBlue'}},
+//                        {name: 'MidLeft', coords: [-4,0], style:{color:'DodgerBlue'}},
+// 			  		   {name: 'MidRight', coords: [4.0,0], style:{color:'DodgerBlue'}}
+//               ],
+              expected_result: {
+                  'Tangent': {angle: 11.3099, angle_tolerance: 1.5, angle_errmsg: "Are you sure that your tangent line has the correct slope?"},         
+              },
+              custom_checks: [
+                  {vector:'Tangent',check: 'y_intercept', expected: 1.5, tolerance: 0.2},
+              ]
+          };
+        </script>
+
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.2/underscore-min.js"></script>
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jsxgraph/0.98/jsxgraphcore.js"></script>
+        <script type="text/javascript" src="https://dnextinteractives.s3.amazonaws.com/Physics/JS/vectordraw.js"></script>
+    </body>
+</html>

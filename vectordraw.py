@@ -1,28 +1,12 @@
-# The contents of this file need to be pasted into the loncapa/python
-# script tag of the problem XML definition - see api-example.xml for
-# an example.
+# Please recreate pyton_lib.zip after you modify this file:
+#   zip python_lib.zip vectordraw.py
 
-
-# If you need custom checks, define them here.
-custom_checks = {}
-
-# The message shown to the student when all checks are successful.
-success_message = 'Good job!'
-
-
-#################################################
-### Python API - Do not edit after this line ####
-#################################################
+###################
+### Python API ####
+###################
 
 import json
 import math
-
-
-def vglcfn(e, ans):
-    """Main grading function."""
-    answer = json.loads(json.loads(ans)['answer'])
-    grader = Grader(answer, custom_checks, success_message)
-    return grader.grade()
 
 
 ## Built-in check functions
@@ -182,23 +166,26 @@ class Grader(object):
         'segment_coords': check_segment_coords,
     }
 
-    def __init__(self, answer, custom_checks, success_message='Test passed'):
-        self.answer = answer
-        self.check_registry.update(custom_checks)
+    def __init__(self, success_message='Test passed', custom_checks=None):
         self.success_message = success_message
+        if custom_checks:
+            self.check_registry.update(custom_checks)
 
-    def grade(self):
-        for check in self.answer['checks']:
+    def grade(self, answer):
+        for check in answer['checks']:
             check_fn = self.check_registry[check['check']]
-            result = check_fn(check, self._get_vectors())
+            result = check_fn(check, self._get_vectors(answer))
             if result:
                 return {'ok': False, 'msg': result}
-
         return {'ok': True, 'msg': self.success_message}
 
-    def _get_vectors(self):
+    def cfn(self, e, ans):
+        answer = json.loads(json.loads(ans)['answer'])
+        return self.grade(answer)
+
+    def _get_vectors(self, answer):
         vectors = {}
-        for name, props in self.answer['vectors'].iteritems():
+        for name, props in answer['vectors'].iteritems():
             tail = props['tail']
             tip = props['tip']
             vectors[name] = Vector(name, tail[0], tail[1], tip[0], tip[1])

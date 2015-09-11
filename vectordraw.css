@@ -79,3 +79,7 @@ body {
 .menu .vector-properties .vector-prop-bold {
     font-weight: bold;
 }
+
+.menu .vector-prop-slope {
+    display: none;
+}

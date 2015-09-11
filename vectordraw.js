@@ -14,7 +14,9 @@ var VectorDraw = function(element_id, settings) {
         vectors: [],
         points: [],
         expected_result: {},
-        custom_checks: []
+        custom_checks: [],
+        show_slope_for_lines:false,
+        unit_vector_ratio:1
     };
 
     this.board = null;
@@ -62,6 +64,9 @@ VectorDraw.prototype.template = _.template([
     '        </div>',
     '        <div class="vector-prop-angle">',
     '          angle: <span class="value">-</span>&deg;',
+    '        </div>',
+    '        <div class="vector-prop-slope" style="display:none">',
+    '          slope: <span class="value">-</span>',
     '        </div>',
     '      </div>',
     '    <% } %>',
@@ -185,7 +190,7 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
         fillColor: style.pointColor,
         strokeColor: style.pointColor,
         withLabel: false,
-        fixed: (vec.type !== 'segment'),
+        fixed: (vec.type === undefined | vec.type==='arrow' | vec.type==='vector' ),
         showInfoBox: false
     });
     var tip = this.board.create('point', coords[1], {
@@ -200,7 +205,7 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
     // it only works when set explicitly with setAttribute.
     tip.setAttribute({labelColor: style.labelColor});
 
-    var line_type = vec.type === 'segment' ? 'segment' : 'arrow';
+    var line_type = (vec.type === undefined | vec.type === 'vector') ? 'arrow' : vec.type;
     var line = this.board.create(line_type, [tail, tip], {
         name: vec.name,
         strokeWidth: style.width,
@@ -305,17 +310,28 @@ VectorDraw.prototype.updateVectorProperties = function(vector) {
         x2 = vector.point2.X(),
         y2 = vector.point2.Y();
     var length = length_factor * Math.sqrt(Math.pow(x2-x1, 2) + Math.pow(y2-y1, 2));
+    var slope = (y2-y1)/(x2-x1) * this.settings.unit_vector_ratio;
     var angle = ((Math.atan2(y2-y1, x2-x1)/Math.PI*180) - base_angle) % 360;
     if (angle < 0) {
         angle += 360;
     }
     $('.vector-prop-name .value', this.element).html(vector.point2.name); // labels are stored as point2 names
-    $('.vector-prop-length .value', this.element).html(length.toFixed(2) + ' ' + length_units);
-    $('.vector-prop-angle .value', this.element).html(angle.toFixed(2));
+    if (vector.elType!=="line"){
+        $('.vector-prop-length .value', this.element).html(length.toFixed(2) + ' ' + length_units);
+        $('.vector-prop-angle .value', this.element).html(angle.toFixed(2));
+    }
+    else if (vector.elType=="line"){
+        $('.vector-prop-length', this.element).hide();
+        $('.vector-prop-angle', this.element).hide();
+    }
+    if (vector.elType==="line" & this.settings.show_slope_for_lines){
+        $('.vector-prop-slope', this.element).show();
+        $('.vector-prop-slope .value', this.element).html(slope.toFixed(2));
+    }
 };
 
 VectorDraw.prototype.isVectorTailDraggable = function(vector) {
-    return vector.elType === 'segment';
+    return vector.elType !== 'arrow';
 };
 
 VectorDraw.prototype.canCreateVectorOnTopOf = function(el) {
@@ -447,7 +463,7 @@ var getInput = function() {
         checks.push(presence_check);
 
         ['tail', 'tail_x', 'tail_y', 'tip', 'tip_x', 'tip_y', 'coords',
-         'length', 'angle', 'segment_angle', 'segment_coords'].forEach(function(prop) {
+         'length', 'angle', 'segment_angle', 'segment_coords','through'].forEach(function(prop) {
             if (prop in answer) {
                 var check = {vector: name, check: prop, expected: answer[prop]};
                 if (prop + '_tolerance' in answer) {

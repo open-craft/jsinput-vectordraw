@@ -130,21 +130,21 @@ def check_segment_angle(check, vectors):
             _angle_within_tolerance(vec.opposite(), expected, tolerance)):
         return _errmsg('The angle of {name} is incorrect. Your angle: {angle:.1f}', check, vectors)
 
-def _min_dist_within_tolerance(vec,point,tolerance):
-    #Determine line through endpoints of vector
-    #calculate minimum 2D-distance from point to line, and check if less than tolerance
-    slope = (vec.tip.y-vec.tail.y)/(vec.tip.x-vec.tail.x)
-    y_intercept = vec.tail.y - slope*vec.tail.x
-    min_dist = abs(slope*point.x-point.y+y_intercept)/math.sqrt(1+slope**2)
-    return min_dist < tolerance
+def _dist_line_point(line, point):
+    # Return the distance between the given line and point.  The line is passed in as a Vector
+    # instance, the point as a Point instance.
+    direction_x = line.tip.x - line.tail.x
+    direction_y = line.tip.y - line.tail.y
+    determinant = (point.x - line.tail.x) * direction_y - (point.y - line.tail.y) * direction_x
+    return abs(determinant) / math.hypot(direction_x, direction_y)
 
-def check_through(check,vectors):
-    vec = vectors[check['vector']]
+def check_points_on_line(check, vectors):
+    line = vectors[check['vector']]
     tolerance = check.get('tolerance', 1.0)
     points = check.get('expected')
     for point in points:
-        point = Point(point[0],point[1])
-        if not _min_dist_within_tolerance(vec,point,tolerance):
+        point = Point(point[0], point[1])
+        if _dist_line_point(line, point) > tolerance:
             return _errmsg('The line {name} does not pass through the correct points.', check, vectors)
 
 class Point(object):
@@ -180,7 +180,7 @@ class Grader(object):
         'angle': check_angle,
         'segment_angle': check_segment_angle,
         'segment_coords': check_segment_coords,
-        'through':check_through
+        'points_on_line': check_points_on_line,
     }
 
     def __init__(self, success_message='Test passed', custom_checks=None):

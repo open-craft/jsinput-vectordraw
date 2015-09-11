@@ -54,8 +54,13 @@ supports these properties:
   (defaults to `false`).
 * `show_vector_properties`: Show the vector properties box (defaults
   to `true`).
-* `show_slope_for_lines`: If `true`, then for objects with `type=line` a slope is shown (defaults to `false`). If set to `true`, be sure that `unit_vector_ratio` is set appropriately.
-* `unit_vector_ratio`: A multiplicative factor for translating slopes from VectorDraw coordinates to the background image coordinates; its value should be `horizontal_unit_vector/vertical_unit_vector`. (Defaults to `1`).
+* `show_slope_for_lines`: If `true`, then for objects with `type=line`
+  a slope is shown (defaults to `false`). If set to `true`, be sure
+  that `unit_vector_ratio` is set appropriately.
+* `unit_vector_ratio`: A multiplicative factor for translating slopes
+  from VectorDraw coordinates to the background image coordinates; its
+  value should be `horizontal_unit_vector/vertical_unit_vector`.
+  (Defaults to `1`).
 * `add_vector_label`: Sets the text displayed on the add-vector button
   (defaults to `'Add Selected Force'`).
 * `vector_properties_label`: Sets the text of the vector property box
@@ -87,9 +92,10 @@ These are the supported vector properties:
   Defaults to `false`.
 * `style`: Custom style properties. Supports the following options:
   `label`, `width`, `color`, `pointSize`, `pointColor`, `labelColor`.
-* `type`: Supported values are `"vector"` (default),
-  `"segment"`, and `"line"`. When set to `"segment"`, the vector is drawn without
-  the arrow. When set to `"line"`, a line extended in both directions is drawn through endpoints.
+* `type`: Supported values are `"vector"` (default), `"segment"`, and
+  `"line"`. When set to `"segment"`, the vector is drawn without the
+  arrow. When set to `"line"`, a line extended in both directions is
+  drawn through the endpoints.
 * `length_units`: Length units to be displayed in the 'Vector
   Properties' box (eg. `"mm"`). Defaults to no units.
 * `length_factor`: The factor by which to multiply the length before
@@ -138,7 +144,8 @@ ignored when grading. These are the supported properties:
 * `segment_angle`: Just like `angle`, but intended to be used with
   segments. Segments are not directed and `segment_angle: 0` is
   therefore equivalent to `segment_angle: 180`.
-* `through`: Intended for lines, this is a list of points through which the line should pass.
+* `points_on_line`: Intended for lines, this is a list of points
+  through which the line should pass.
 
 Every property is optional - you can check an arbitray list of
 properties for each vector.

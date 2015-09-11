@@ -183,6 +183,22 @@ class VectorDrawTest(unittest.TestCase):
         self.assertFails(vd.check_segment_angle(self.check(-45, 9, errmsg=custom_errmsg), vectors),
                          custom_errmsg)
 
+    def test_check_points_on_line(self):
+        errmsg = 'The line vec does not pass through the correct points.'
+        vectors = {'vec': self.vector(1, 1, 5, 5)}
+        self.assertPasses(vd.check_points_on_line(self.check([[1, 1], [5, 5]]), vectors))
+        self.assertPasses(vd.check_points_on_line(self.check([[1, 2], [5, 4]]), vectors))
+        self.assertPasses(vd.check_points_on_line(self.check([[3.7, 2.3], [2.3, 3.7]]), vectors))
+        self.assertPasses(vd.check_points_on_line(self.check([[-1, -.5], [98, 99]]), vectors))
+        self.assertFails(vd.check_points_on_line(self.check([[1, -1]]), vectors), errmsg)
+        self.assertFails(vd.check_points_on_line(self.check([[3.8, 2.2]]), vectors), errmsg)
+        self.assertFails(vd.check_points_on_line(self.check([[18, 13]]), vectors), errmsg)
+        vectors = {'vec': self.vector(1, 1, 1, 5)}  # vertical line
+        self.assertPasses(vd.check_points_on_line(self.check([[1, 3], [1, 99], [1.9, 55]]), vectors))
+        self.assertFails(vd.check_points_on_line(self.check([[2.1, 3]]), vectors), errmsg)
+        vectors = {'vec': self.vector(1, 1, 5, 1)}  # horizontal line
+        self.assertPasses(vd.check_points_on_line(self.check([[3, 1], [99, 1], [55, 1.9]]), vectors))
+        self.assertFails(vd.check_points_on_line(self.check([[3, 2.1]]), vectors), errmsg)
 
 if __name__ == '__main__':
     unittest.main()

@@ -29,7 +29,7 @@ var VectorDraw = function(element_id, settings) {
     this.element = $('#' + element_id);
 
     this.element.on('click', '.reset', this.reset.bind(this));
-    this.element.on('click', '.add-vector', this.addVectorFromList.bind(this));
+    this.element.on('click', '.add-vector', this.addElementFromList.bind(this));
     this.element.on('click', '.undo', this.undo.bind(this));
     this.element.on('click', '.redo', this.redo.bind(this));
     // Prevents default image drag and drop actions in some browsers.
@@ -44,8 +44,11 @@ VectorDraw.prototype.template = _.template([
     '    <div class="controls">',
     '        <select>',
     '        <% vectors.forEach(function(vec, idx) { %>',
-    '            <option value="<%= idx %>"><%= vec.description %></option>',
+    '            <option value="vector-<%= idx %>"><%= vec.description %></option>',
     '        <% }) %>',
+    '        <% points.forEach(function(point, idx) { if (point.fixed === false) { %>',
+    '            <option value="point-<%= idx %>"><%= point.description %></option>',
+    '        <% }}) %>',
     '        </select>',
     '        <button class="add-vector"><%= add_vector_label %></button>',
     '        <button class="reset">Reset</button>',
@@ -115,17 +118,10 @@ VectorDraw.prototype.createBoard = function() {
         }
     }
 
-    this.settings.points.forEach(function(point) {
-        var opts = {
-            size: 1,
-            fixed: true,
-            name: point.name,
-            withLabel: false,
-            strokeColor: 'pink',
-            fillColor: 'pink',
-            showInfoBox: false
-        };
-        this.board.create('point', point.coords, opts);
+    this.settings.points.forEach(function(point, idx) {
+        if (point.render || point.render === undefined) {
+            this.renderPoint(idx);
+        }
     }, this);
 
     this.settings.vectors.forEach(function(vec, idx) {
@@ -137,6 +133,48 @@ VectorDraw.prototype.createBoard = function() {
     this.board.on('down', this.onBoardDown.bind(this));
     this.board.on('move', this.onBoardMove.bind(this));
     this.board.on('up', this.onBoardUp.bind(this));
+};
+
+VectorDraw.prototype.renderPoint = function(idx, coords) {
+    var point = this.settings.points[idx];
+    var coords = coords || point.coords;
+    var board_object = this.board.elementsByName[point.name];
+    if (board_object) {
+        // If the point is already rendered, only update its coordinates.
+        board_object.setPosition(JXG.COORDS_BY_USER, coords);
+        return;
+    }
+    var opts = {
+        size: 1,
+        fixed: point.fixed,
+        name: point.name,
+        withLabel: false,
+        strokeColor: 'pink',
+        fillColor: 'pink',
+        showInfoBox: false
+    };
+    if (opts.fixed === undefined) {
+        opts.fixed = true;  // Default to true for backwards compatibility.
+    }
+    opts = _.extend(opts, point.style);
+    this.board.create('point', coords, opts);
+
+    if (!opts.fixed) {
+        // Disable the <option> element corresponding to point.
+        var option = this.element.find('.menu option[value=point-' + idx + ']');
+        option.prop('disabled', true).prop('selected', false);
+    }
+}
+
+VectorDraw.prototype.removePoint = function(idx) {
+    var point = this.settings.points[idx];
+    var object = this.board.elementsByName[point.name];
+    if (object) {
+        this.board.removeAncestors(object);
+        // Enable the <option> element corresponding to point.
+        var option = this.element.find('.menu option[value=point-' + idx + ']');
+        option.prop('disabled', false);
+    }
 };
 
 VectorDraw.prototype.getVectorCoordinates = function(vec) {
@@ -214,7 +252,7 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
     tip.label.setAttribute({fontsize: 18, highlightStrokeColor: 'black'});
 
     // Disable the <option> element corresponding to vector.
-    var option = this.element.find('.menu option[value=' + idx + ']');
+    var option = this.element.find('.menu option[value=vector-' + idx + ']');
     option.prop('disabled', true).prop('selected', false);
 
     return line;
@@ -226,16 +264,31 @@ VectorDraw.prototype.removeVector = function(idx) {
     if (object) {
         this.board.removeAncestors(object);
         // Enable the <option> element corresponding to vector.
-        var option = this.element.find('.menu option[value=' + idx + ']');
+        var option = this.element.find('.menu option[value=vector-' + idx + ']');
         option.prop('disabled', false);
     }
 };
 
-VectorDraw.prototype.addVectorFromList = function() {
+VectorDraw.prototype.getSelectedElement = function() {
+    var selector = this.element.find('.menu select').val();
+    if (selector) {
+        selector = selector.split('-');
+        return {
+            type: selector[0],
+            idx: parseInt(selector[1])
+        }
+    }
+    return {};
+};
+
+VectorDraw.prototype.addElementFromList = function() {
     this.pushHistory();
-    var idx = this.element.find('.menu select').val(),
-        vector = this.renderVector(idx);
-    this.updateVectorProperties(vector);
+    var selected = this.getSelectedElement();
+    if (selected.type === 'vector') {
+        this.updateVectorProperties(this.renderVector(selected.idx));
+    } else {
+        this.renderPoint(selected.idx);
+    }
 };
 
 VectorDraw.prototype.reset = function() {
@@ -340,7 +393,7 @@ VectorDraw.prototype.canCreateVectorOnTopOf = function(el) {
     if (el instanceof JXG.Point) {
         var vector = this.getVectorForObject(el);
         if (!vector) {
-            return true;
+            return !(el instanceof JXG.Point) || el.getProperty('fixed');
         } else if (el === vector.point1 && !this.isVectorTailDraggable(vector)) {
             return true;
         } else {
@@ -360,13 +413,17 @@ VectorDraw.prototype.objectsUnderMouse = function(coords) {
 VectorDraw.prototype.onBoardDown = function(evt) {
     this.pushHistory();
     // Can't create a vector if none is selected from the list.
-    var vec_idx = this.element.find('.menu select').val();
+    var selected = this.getSelectedElement();
     var coords = this.getMouseCoords(evt);
     var targetObjects = this.objectsUnderMouse(coords);
-    if (vec_idx && (!targetObjects || _.all(targetObjects, this.canCreateVectorOnTopOf.bind(this)))) {
-        this.drawMode = true;
+    if (selected.idx && (!targetObjects || _.all(targetObjects, this.canCreateVectorOnTopOf.bind(this)))) {
         var point_coords = [coords.usrCoords[1], coords.usrCoords[2]];
-        this.dragged_vector = this.renderVector(vec_idx, [point_coords, point_coords]);
+        if (selected.type === 'vector') {
+            this.drawMode = true;
+            this.dragged_vector = this.renderVector(selected.idx, [point_coords, point_coords]);
+        } else {
+            this.renderPoint(selected.idx, point_coords);
+        }
     }
     else {
         this.drawMode = false;
@@ -408,14 +465,20 @@ VectorDraw.prototype.getVectorCoords = function(name) {
 };
 
 VectorDraw.prototype.getState = function() {
-    var vectors = {};
+    var vectors = {}, points = {};
     this.settings.vectors.forEach(function(vec) {
         var coords = this.getVectorCoords(vec.name);
         if (coords) {
             vectors[vec.name] = coords;
         }
     }, this);
-    return {vectors: vectors};
+    this.settings.points.forEach(function(point) {
+        var obj = this.board.elementsByName[point.name];
+        if (obj) {
+            points[point.name] = [obj.X(), obj.Y()];
+        }
+    }, this);
+    return {vectors: vectors, points: points};
 };
 
 VectorDraw.prototype.setState = function(state) {
@@ -425,6 +488,14 @@ VectorDraw.prototype.setState = function(state) {
             this.renderVector(idx, [vec_state.tail, vec_state.tip]);
         } else {
             this.removeVector(idx);
+        }
+    }, this);
+    this.settings.points.forEach(function(point, idx) {
+        var point_state = state.points[point.name];
+        if (point_state) {
+            this.renderPoint(idx, point_state);
+        } else {
+            this.removePoint(idx);
         }
     }, this);
     this.board.update();

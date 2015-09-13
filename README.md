@@ -106,9 +106,25 @@ These are the supported vector properties:
 
 #### points
 
-The `points` setting defines a list of points to be drawn on the
-board. It is optional. Each point should be defined as an object with
-`name` and `coords` properties.
+The `points` setting defines a list of points to be either just drawn
+on the board for reference, or to be placed by the student.  Points can
+have the following properties:
+
+* `name` (required): The unique name of the point, used in checks and
+  internally to identify the point.
+* `coords` (required): An array of length 2 with the (initial)
+  coordinates of the point.
+* `fixed`: Whether the point should be drawn in a fixed location or
+  placed by the student.  Defaults to `true`.
+* `render`: Whether the point should be rendered when the board is
+  initially shown.  Defaults to `true`, but may be set to `false` for
+  non-fixed points.
+* `description`: The long description used in the drop-down menu for
+  non-fixed points.
+* `style`: An object with addional properties for the point.  Supports
+  the properties `size`, `strokeColor` and `fillColor`.
+
+The only check supported for points is the `point_coords` check.
 
 #### expected_result
 
@@ -142,6 +158,7 @@ ignored when grading. These are the supported properties:
   therefore equivalent to `segment_angle: 180`.
 * `points_on_line`: Intended for lines, this is a list of points
   through which the line should pass.
+* `point_coords`: Expected coordinates of a point.
 
 Every property is optional - you can check an arbitray list of
 properties for each vector.

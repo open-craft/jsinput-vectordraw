@@ -55,8 +55,7 @@ supports these properties:
 * `show_vector_properties`: Show the vector properties box (defaults
   to `true`).
 * `show_slope_for_lines`: If `true`, then for objects with `type=line`
-  a slope is shown (defaults to `false`). If set to `true`, be sure
-  that `unit_vector_ratio` is set appropriately.
+  a slope is shown (defaults to `false`).
 * `add_vector_label`: Sets the text displayed on the add-vector button
   (defaults to `'Add Selected Force'`).
 * `vector_properties_label`: Sets the text of the vector property box
@@ -114,15 +113,15 @@ have the following properties:
   internally to identify the point.
 * `coords` (required): An array of length 2 with the (initial)
   coordinates of the point.
-* `fixed`: Whether the point should be drawn in a fixed location or
-  placed by the student.  Defaults to `true`.
-* `render`: Whether the point should be rendered when the board is
+* `fixed`: Whether the point should be drawn in a fixed location
+  (`true`) or placed by the student (`false`).  Defaults to `true`.
+* `render`: Whether the point should be displayed when the board is
   initially shown.  Defaults to `true`, but may be set to `false` for
   non-fixed points.
 * `description`: The long description used in the drop-down menu for
   non-fixed points.
 * `style`: An object with addional properties for the point.  Supports
-  the properties `size`, `strokeColor` and `fillColor`.
+  the properties `size` and `color`.
 
 The only check supported for points is the `point_coords` check.
 
@@ -221,3 +220,8 @@ grading function unmodified, together with the list of vectors and
 their state.
 
 See `4_energyLevels.xml` for an example.
+
+## Acknowledgements
+
+The support for the "line" object type was originally implemented by
+Christopher Chudzicki.

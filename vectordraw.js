@@ -5,7 +5,7 @@ var VectorDraw = function(element_id, settings) {
     this.dragged_vector = null;
     this.drawMode = false;
     this.history_stack = {undo: [], redo: []};
-    this.settings = this.sanitiseSettings(settings);
+    this.settings = this.sanitizeSettings(settings);
     this.element = $('#' + element_id);
 
     this.element.on('click', '.reset', this.reset.bind(this));
@@ -18,7 +18,7 @@ var VectorDraw = function(element_id, settings) {
     this.render();
 };
 
-VectorDraw.prototype.sanitiseSettings = function(settings) {
+VectorDraw.prototype.sanitizeSettings = function(settings) {
     // Fill in defaults at top level of settings.
     var default_settings = {
         width: 550,
@@ -72,8 +72,7 @@ VectorDraw.prototype.sanitiseSettings = function(settings) {
     var default_point_style = {
         size: 1,
         withLabel: false,
-        strokeColor: 'pink',
-        fillColor: 'pink',
+        color: 'pink',
         showInfoBox: false
     };
     settings.points.forEach(function(point) {
@@ -81,6 +80,9 @@ VectorDraw.prototype.sanitiseSettings = function(settings) {
         _.defaults(point.style, default_point_style);
         point.style.name = point.name;
         point.style.fixed = point.fixed;
+        point.style.strokeColor = point.style.color;
+        point.style.fillColor = point.style.color;
+        delete point.style.color;
     });
 
     return settings;
@@ -195,7 +197,7 @@ VectorDraw.prototype.renderPoint = function(idx, coords) {
     this.board.create('point', coords, point.style);
     if (!point.fixed) {
         // Disable the <option> element corresponding to point.
-        var option = this.element.find('.menu option[value=point-' + idx + ']');
+        var option = this.getMenuOption('point', idx);
         option.prop('disabled', true).prop('selected', false);
     }
 }
@@ -206,7 +208,7 @@ VectorDraw.prototype.removePoint = function(idx) {
     if (object) {
         this.board.removeAncestors(object);
         // Enable the <option> element corresponding to point.
-        var option = this.element.find('.menu option[value=point-' + idx + ']');
+        var option = this.getMenuOption('point', idx);
         option.prop('disabled', false);
     }
 };
@@ -286,7 +288,7 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
     tip.label.setAttribute({fontsize: 18, highlightStrokeColor: 'black'});
 
     // Disable the <option> element corresponding to vector.
-    var option = this.element.find('.menu option[value=vector-' + idx + ']');
+    var option = this.getMenuOption('vector', idx);
     option.prop('disabled', true).prop('selected', false);
 
     return line;
@@ -298,9 +300,13 @@ VectorDraw.prototype.removeVector = function(idx) {
     if (object) {
         this.board.removeAncestors(object);
         // Enable the <option> element corresponding to vector.
-        var option = this.element.find('.menu option[value=vector-' + idx + ']');
+        var option = this.getMenuOption('vector', idx);
         option.prop('disabled', false);
     }
+};
+
+VectorDraw.prototype.getMenuOption = function(type, idx) {
+    return this.element.find('.menu option[value=' + type + '-' + idx + ']');
 };
 
 VectorDraw.prototype.getSelectedElement = function() {
@@ -399,13 +405,18 @@ VectorDraw.prototype.updateVectorProperties = function(vector) {
         angle += 360;
     }
     $('.vector-prop-name .value', this.element).html(vector.point2.name); // labels are stored as point2 names
+    $('.vector-prop-angle .value', this.element).html(angle.toFixed(2));
     if (vector.elType !== "line") {
+        $('.vector-prop-length', this.element).show();
         $('.vector-prop-length .value', this.element).html(length.toFixed(2) + ' ' + vec_settings.length_units);
-        $('.vector-prop-angle .value', this.element).html(angle.toFixed(2));
+        $('.vector-prop-slope', this.element).hide();
     }
     else {
         $('.vector-prop-length', this.element).hide();
-        $('.vector-prop-angle', this.element).hide();
+        if (this.settings.show_slope_for_lines) {
+            $('.vector-prop-slope', this.element).show();
+            $('.vector-prop-slope .value', this.element).html(slope.toFixed(2));
+        }
     }
 };
 

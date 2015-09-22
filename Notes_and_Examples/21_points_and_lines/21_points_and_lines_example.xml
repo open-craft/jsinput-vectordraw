@@ -1,0 +1,39 @@
+<problem display_name="webGLDemo">
+<script type="loncapa/python">
+<![CDATA[
+import vectordraw
+
+### Custom Checks ###
+
+def check_compare_normal_and_gravity_lengths(check, vectors):
+    normal = vectors['N']
+    gravity = vectors['g']
+    if abs(normal.length - gravity.length) > 1.0:
+        return 'Normal Force and Gravitational Force should be similar lengths.'
+
+custom_checks = {
+  'compare_normal_and_gravity_lengths': check_compare_normal_and_gravity_lengths
+}
+
+success_message = 'Good job!'
+
+grader = vectordraw.Grader(success_message, custom_checks)
+]]>
+</script>
+<p>
+A car is moving in the positive x-direction and is slowing down. Draw the appropriate free-body diagram for this situation. You can create a draggable vector by clicking one of the buttons to the right of the interactive canvas.
+</p>
+<p>
+  <i>Be sure that the "tail" of each vector starts at the center of mass.</i> Also try to break this - I have error messages for most possible situations.
+</p>
+<customresponse cfn="grader.cfn">
+  <jsinput gradefn="getInput"
+    get_statefn="getState"
+    set_statefn="setState"
+    initial_state='{}'
+    width="800"
+    height="480"
+    html_file="/static/21_points_and_lines_example.html"
+    />
+</customresponse>
+</problem>

@@ -24,25 +24,19 @@
                   width: 20
               },
               vectors: [
-                    {
-                        name: 'N', description: 'Normal force - N', coords: [[2, 2], [7, 8]], render: true,
-                        style: {pointSize:2, label: "Norm", color:"red", width:2}
-                    },
-                    {
-                        name: 'f', description: 'Friction - f', coords: [[-2, -5], [-1, -3]], render: false,
-                        style: {pointSize:3, pointColor: 'green', label: "Fric", color:"#cccccc", width:1.5}
-                    },
-                    {name: 'g', description: 'Gravity - g', tail: [0, 1.5], length: 5, angle: -75, render: false}
+                    {name: 'line1', type:'line',  description: 'Line #1', coords: [[0, 0], [3, 3]], render: false}
               ],
-              points: [{name: 'cm', coords: [0, -0.75]}],
-              expected_result: {
-                 'N': {angle: 90, angle_tolerance: 2, tail: [0, -0.75], tail_tolerance: 0.25},
-                 'g': {angle: 270, angle_errmsg: 'Gravity angle is wrong.', angle_tolerance: 2, tail: [0, -0.75], tail_tolerance: 0.25},
-                 'f': {angle: 180, angle_tolerance: 2, tail: [0, -0.75], tail_tolerance: 0.25}
-              },
-              custom_checks: [
-                  {check: 'compare_normal_and_gravity_lengths'}
-              ]
+              points: [
+                {name: 'cm', coords: [0, -0.75], fixed: true},
+                {
+                  name: 'dp', coords: [0, -0.75], fixed: false, description: 'A point to be set by student',
+                  render: false, style: {color: '#ff00ff', size: 2}
+                }
+              ],
+              expected_results: {
+                line1: {coords: [[0, 0], [3, 3]]},
+                point_coords: {'dp': [0, 0]}
+              }
           };
         </script>
 

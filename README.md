@@ -54,6 +54,8 @@ supports these properties:
   (defaults to `false`).
 * `show_vector_properties`: Show the vector properties box (defaults
   to `true`).
+* `show_slope_for_lines`: If `true`, then for objects with `type=line`
+  a slope is shown (defaults to `false`).
 * `add_vector_label`: Sets the text displayed on the add-vector button
   (defaults to `'Add Selected Force'`).
 * `vector_properties_label`: Sets the text of the vector property box
@@ -85,9 +87,10 @@ These are the supported vector properties:
   Defaults to `false`.
 * `style`: Custom style properties. Supports the following options:
   `label`, `width`, `color`, `pointSize`, `pointColor`, `labelColor`.
-* `type`: Supported values are `"vector"` (default) and
-  `"segment"`. When set to `"segment"`, the vector is drawn without
-  the arrow.
+* `type`: Supported values are `"vector"` (default), `"segment"`, and
+  `"line"`. When set to `"segment"`, the vector is drawn without the
+  arrow. When set to `"line"`, a line extended in both directions is
+  drawn through the endpoints.
 * `length_units`: Length units to be displayed in the 'Vector
   Properties' box (eg. `"mm"`). Defaults to no units.
 * `length_factor`: The factor by which to multiply the length before
@@ -102,9 +105,25 @@ These are the supported vector properties:
 
 #### points
 
-The `points` setting defines a list of points to be drawn on the
-board. It is optional. Each point should be defined as an object with
-`name` and `coords` properties.
+The `points` setting defines a list of points to be either just drawn
+on the board for reference, or to be placed by the student.  Points can
+have the following properties:
+
+* `name` (required): The unique name of the point, used in checks and
+  internally to identify the point.
+* `coords` (required): An array of length 2 with the (initial)
+  coordinates of the point.
+* `fixed`: Whether the point should be drawn in a fixed location
+  (`true`) or placed by the student (`false`).  Defaults to `true`.
+* `render`: Whether the point should be displayed when the board is
+  initially shown.  Defaults to `true`, but may be set to `false` for
+  non-fixed points.
+* `description`: The long description used in the drop-down menu for
+  non-fixed points.
+* `style`: An object with addional properties for the point.  Supports
+  the properties `size` and `color`.
+
+The only check supported for points is the `point_coords` check.
 
 #### expected_result
 
@@ -136,6 +155,9 @@ ignored when grading. These are the supported properties:
 * `segment_angle`: Just like `angle`, but intended to be used with
   segments. Segments are not directed and `segment_angle: 0` is
   therefore equivalent to `segment_angle: 180`.
+* `points_on_line`: Intended for lines, this is a list of points
+  through which the line should pass.
+* `point_coords`: Expected coordinates of a point.
 
 Every property is optional - you can check an arbitray list of
 properties for each vector.
@@ -198,3 +220,8 @@ grading function unmodified, together with the list of vectors and
 their state.
 
 See `4_energyLevels.xml` for an example.
+
+## Acknowledgements
+
+The support for the "line" object type was originally implemented by
+Christopher Chudzicki.

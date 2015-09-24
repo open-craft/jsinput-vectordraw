@@ -5,6 +5,7 @@
 ### Python API ####
 ###################
 
+import inspect
 import json
 import math
 
@@ -21,6 +22,10 @@ def _errmsg(default_message, check, vectors):
                            tip_y=vec.tip.y,
                            length=vec.length,
                            angle=vec.angle)
+
+def _errmsg_point(default_message, check, point):
+    template = check.get('errmsg', default_message)
+    return template.format(name=check['point'], x=point.x, y=point.y)
 
 def check_presence(check, vectors):
     if check['vector'] not in vectors:
@@ -130,6 +135,30 @@ def check_segment_angle(check, vectors):
             _angle_within_tolerance(vec.opposite(), expected, tolerance)):
         return _errmsg('The angle of {name} is incorrect. Your angle: {angle:.1f}', check, vectors)
 
+def _dist_line_point(line, point):
+    # Return the distance between the given line and point.  The line is passed in as a Vector
+    # instance, the point as a Point instance.
+    direction_x = line.tip.x - line.tail.x
+    direction_y = line.tip.y - line.tail.y
+    determinant = (point.x - line.tail.x) * direction_y - (point.y - line.tail.y) * direction_x
+    return abs(determinant) / math.hypot(direction_x, direction_y)
+
+def check_points_on_line(check, vectors):
+    line = vectors[check['vector']]
+    tolerance = check.get('tolerance', 1.0)
+    points = check.get('expected')
+    for point in points:
+        point = Point(point[0], point[1])
+        if _dist_line_point(line, point) > tolerance:
+            return _errmsg('The line {name} does not pass through the correct points.', check, vectors)
+
+def check_point_coords(check, points):
+    point = points[check['point']]
+    tolerance = check.get('tolerance', 1.0)
+    expected = check.get('expected')
+    dist = math.hypot(expected[0] - point.x, expected[1] - point.y)
+    if dist > tolerance:
+        return _errmsg_point('Point {name} is not at the correct location.', check, point)
 
 class Point(object):
     def __init__(self, x, y):
@@ -164,6 +193,8 @@ class Grader(object):
         'angle': check_angle,
         'segment_angle': check_segment_angle,
         'segment_coords': check_segment_coords,
+        'points_on_line': check_points_on_line,
+        'point_coords': check_point_coords,
     }
 
     def __init__(self, success_message='Test passed', custom_checks=None):
@@ -172,9 +203,15 @@ class Grader(object):
             self.check_registry.update(custom_checks)
 
     def grade(self, answer):
+        check_data = dict(
+            vectors=self._get_vectors(answer),
+            points=self._get_points(answer),
+        )
         for check in answer['checks']:
+            check_data['check'] = check
             check_fn = self.check_registry[check['check']]
-            result = check_fn(check, self._get_vectors(answer))
+            args = [check_data[arg] for arg in inspect.getargspec(check_fn).args]
+            result = check_fn(*args)
             if result:
                 return {'ok': False, 'msg': result}
         return {'ok': True, 'msg': self.success_message}
@@ -190,3 +227,6 @@ class Grader(object):
             tip = props['tip']
             vectors[name] = Vector(name, tail[0], tail[1], tip[0], tip[1])
         return vectors
+
+    def _get_points(self, answer):
+        return {name: Point(*coords) for name, coords in answer['points'].iteritems()}

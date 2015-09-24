@@ -1,6 +1,25 @@
 'use strict';
 
 var VectorDraw = function(element_id, settings) {
+    this.board = null;
+    this.dragged_vector = null;
+    this.drawMode = false;
+    this.history_stack = {undo: [], redo: []};
+    this.settings = this.sanitizeSettings(settings);
+    this.element = $('#' + element_id);
+
+    this.element.on('click', '.reset', this.reset.bind(this));
+    this.element.on('click', '.add-vector', this.addElementFromList.bind(this));
+    this.element.on('click', '.undo', this.undo.bind(this));
+    this.element.on('click', '.redo', this.redo.bind(this));
+    // Prevents default image drag and drop actions in some browsers.
+    this.element.on('mousedown', '.jxgboard image', function(evt) { evt.preventDefault(); });
+
+    this.render();
+};
+
+VectorDraw.prototype.sanitizeSettings = function(settings) {
+    // Fill in defaults at top level of settings.
     var default_settings = {
         width: 550,
         height: 400,
@@ -14,28 +33,60 @@ var VectorDraw = function(element_id, settings) {
         vectors: [],
         points: [],
         expected_result: {},
-        custom_checks: []
+        custom_checks: [],
+        unit_vector_ratio: 1
     };
+    _.defaults(settings, default_settings);
+    var width_scale = settings.width / settings.height,
+        box_size = settings.bounding_box_size;
+    settings.bounding_box = [-box_size*width_scale, box_size, box_size*width_scale, -box_size]
 
-    this.board = null;
-    this.dragged_vector = null;
-    this.drawMode = false;
-    this.history_stack = {undo: [], redo: []};
-    this.settings = _.extend(default_settings, settings);
-    var width_scale = this.settings.width / this.settings.height,
-        box_size = this.settings.bounding_box_size;
-    this.settings.bounding_box = [-box_size*width_scale, box_size, box_size*width_scale, -box_size]
-    this.element = $('#' + element_id);
+    // Fill in defaults for vectors.
+    var default_vector = {
+        type: 'vector',
+        render: false,
+        length_factor: 1,
+        length_units: '',
+        base_angle: 0,
+        style: {}
+    };
+    var default_vector_style = {
+        pointSize: 1,
+        pointColor: 'red',
+        width: 4,
+        color: "blue",
+        label: null,
+        labelColor: 'black'
+    };
+    settings.vectors.forEach(function(vector) {
+        _.defaults(vector, default_vector);
+        _.defaults(vector.style, default_vector_style);
+    });
 
-    this.element.on('click', '.reset', this.reset.bind(this));
-    this.element.on('click', '.add-vector', this.addVectorFromList.bind(this));
-    this.element.on('click', '.undo', this.undo.bind(this));
-    this.element.on('click', '.redo', this.redo.bind(this));
-    // Prevents default image drag and drop actions in some browsers.
-    this.element.on('mousedown', '.jxgboard image', function(evt) { evt.preventDefault(); });
+    // Fill in defaults for points.
+    var default_point = {
+        fixed: true,  // Default to true for backwards compatibility.
+        render: true,
+        style: {}
+    };
+    var default_point_style = {
+        size: 1,
+        withLabel: false,
+        color: 'pink',
+        showInfoBox: false
+    };
+    settings.points.forEach(function(point) {
+        _.defaults(point, default_point);
+        _.defaults(point.style, default_point_style);
+        point.style.name = point.name;
+        point.style.fixed = point.fixed;
+        point.style.strokeColor = point.style.color;
+        point.style.fillColor = point.style.color;
+        delete point.style.color;
+    });
 
-    this.render();
-};
+    return settings;
+}
 
 VectorDraw.prototype.template = _.template([
     '<div class="jxgboard" style="width:<%= width %>px; height:<%= height %>px;" />',
@@ -43,8 +94,11 @@ VectorDraw.prototype.template = _.template([
     '    <div class="controls">',
     '        <select>',
     '        <% vectors.forEach(function(vec, idx) { %>',
-    '            <option value="<%= idx %>"><%= vec.description %></option>',
+    '            <option value="vector-<%= idx %>"><%= vec.description %></option>',
     '        <% }) %>',
+    '        <% points.forEach(function(point, idx) { if (!point.fixed) { %>',
+    '            <option value="point-<%= idx %>"><%= point.description %></option>',
+    '        <% }}) %>',
     '        </select>',
     '        <button class="add-vector"><%= add_vector_label %></button>',
     '        <button class="reset">Reset</button>',
@@ -62,6 +116,9 @@ VectorDraw.prototype.template = _.template([
     '        </div>',
     '        <div class="vector-prop-angle">',
     '          angle: <span class="value">-</span>&deg;',
+    '        </div>',
+    '        <div class="vector-prop-slope">',
+    '          slope: <span class="value">-</span>',
     '        </div>',
     '      </div>',
     '    <% } %>',
@@ -111,17 +168,10 @@ VectorDraw.prototype.createBoard = function() {
         }
     }
 
-    this.settings.points.forEach(function(point) {
-        var opts = {
-            size: 1,
-            fixed: true,
-            name: point.name,
-            withLabel: false,
-            strokeColor: 'pink',
-            fillColor: 'pink',
-            showInfoBox: false
-        };
-        this.board.create('point', point.coords, opts);
+    this.settings.points.forEach(function(point, idx) {
+        if (point.render) {
+            this.renderPoint(idx);
+        }
     }, this);
 
     this.settings.vectors.forEach(function(vec, idx) {
@@ -133,6 +183,34 @@ VectorDraw.prototype.createBoard = function() {
     this.board.on('down', this.onBoardDown.bind(this));
     this.board.on('move', this.onBoardMove.bind(this));
     this.board.on('up', this.onBoardUp.bind(this));
+};
+
+VectorDraw.prototype.renderPoint = function(idx, coords) {
+    var point = this.settings.points[idx];
+    var coords = coords || point.coords;
+    var board_object = this.board.elementsByName[point.name];
+    if (board_object) {
+        // If the point is already rendered, only update its coordinates.
+        board_object.setPosition(JXG.COORDS_BY_USER, coords);
+        return;
+    }
+    this.board.create('point', coords, point.style);
+    if (!point.fixed) {
+        // Disable the <option> element corresponding to point.
+        var option = this.getMenuOption('point', idx);
+        option.prop('disabled', true).prop('selected', false);
+    }
+}
+
+VectorDraw.prototype.removePoint = function(idx) {
+    var point = this.settings.points[idx];
+    var object = this.board.elementsByName[point.name];
+    if (object) {
+        this.board.removeAncestors(object);
+        // Enable the <option> element corresponding to point.
+        var option = this.getMenuOption('point', idx);
+        option.prop('disabled', false);
+    }
 };
 
 VectorDraw.prototype.getVectorCoordinates = function(vec) {
@@ -177,7 +255,7 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
         return;
     }
 
-    var style = this.getVectorStyle(vec);
+    var style = vec.style;
 
     var tail = this.board.create('point', coords[0], {
         name: vec.name,
@@ -185,7 +263,7 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
         fillColor: style.pointColor,
         strokeColor: style.pointColor,
         withLabel: false,
-        fixed: (vec.type !== 'segment'),
+        fixed: (vec.type === 'arrow' | vec.type === 'vector'),
         showInfoBox: false
     });
     var tip = this.board.create('point', coords[1], {
@@ -200,7 +278,7 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
     // it only works when set explicitly with setAttribute.
     tip.setAttribute({labelColor: style.labelColor});
 
-    var line_type = vec.type === 'segment' ? 'segment' : 'arrow';
+    var line_type = (vec.type === 'vector') ? 'arrow' : vec.type;
     var line = this.board.create(line_type, [tail, tip], {
         name: vec.name,
         strokeWidth: style.width,
@@ -210,7 +288,7 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
     tip.label.setAttribute({fontsize: 18, highlightStrokeColor: 'black'});
 
     // Disable the <option> element corresponding to vector.
-    var option = this.element.find('.menu option[value=' + idx + ']');
+    var option = this.getMenuOption('vector', idx);
     option.prop('disabled', true).prop('selected', false);
 
     return line;
@@ -222,16 +300,35 @@ VectorDraw.prototype.removeVector = function(idx) {
     if (object) {
         this.board.removeAncestors(object);
         // Enable the <option> element corresponding to vector.
-        var option = this.element.find('.menu option[value=' + idx + ']');
+        var option = this.getMenuOption('vector', idx);
         option.prop('disabled', false);
     }
 };
 
-VectorDraw.prototype.addVectorFromList = function() {
+VectorDraw.prototype.getMenuOption = function(type, idx) {
+    return this.element.find('.menu option[value=' + type + '-' + idx + ']');
+};
+
+VectorDraw.prototype.getSelectedElement = function() {
+    var selector = this.element.find('.menu select').val();
+    if (selector) {
+        selector = selector.split('-');
+        return {
+            type: selector[0],
+            idx: parseInt(selector[1])
+        }
+    }
+    return {};
+};
+
+VectorDraw.prototype.addElementFromList = function() {
     this.pushHistory();
-    var idx = this.element.find('.menu select').val(),
-        vector = this.renderVector(idx);
-    this.updateVectorProperties(vector);
+    var selected = this.getSelectedElement();
+    if (selected.type === 'vector') {
+        this.updateVectorProperties(this.renderVector(selected.idx));
+    } else {
+        this.renderPoint(selected.idx);
+    }
 };
 
 VectorDraw.prototype.reset = function() {
@@ -297,25 +394,34 @@ VectorDraw.prototype.getVectorSettingsByName = function(name) {
 
 VectorDraw.prototype.updateVectorProperties = function(vector) {
     var vec_settings = this.getVectorSettingsByName(vector.name);
-    var length_factor = vec_settings.length_factor || 1;
-    var length_units = vec_settings.length_units || '';
-    var base_angle = vec_settings.base_angle || 0;
     var x1 = vector.point1.X(),
         y1 = vector.point1.Y(),
         x2 = vector.point2.X(),
         y2 = vector.point2.Y();
-    var length = length_factor * Math.sqrt(Math.pow(x2-x1, 2) + Math.pow(y2-y1, 2));
-    var angle = ((Math.atan2(y2-y1, x2-x1)/Math.PI*180) - base_angle) % 360;
+    var length = vec_settings.length_factor * Math.sqrt(Math.pow(x2-x1, 2) + Math.pow(y2-y1, 2));
+    var slope = (y2-y1)/(x2-x1);
+    var angle = ((Math.atan2(y2-y1, x2-x1)/Math.PI*180) - vec_settings.base_angle) % 360;
     if (angle < 0) {
         angle += 360;
     }
     $('.vector-prop-name .value', this.element).html(vector.point2.name); // labels are stored as point2 names
-    $('.vector-prop-length .value', this.element).html(length.toFixed(2) + ' ' + length_units);
     $('.vector-prop-angle .value', this.element).html(angle.toFixed(2));
+    if (vector.elType !== "line") {
+        $('.vector-prop-length', this.element).show();
+        $('.vector-prop-length .value', this.element).html(length.toFixed(2) + ' ' + vec_settings.length_units);
+        $('.vector-prop-slope', this.element).hide();
+    }
+    else {
+        $('.vector-prop-length', this.element).hide();
+        if (this.settings.show_slope_for_lines) {
+            $('.vector-prop-slope', this.element).show();
+            $('.vector-prop-slope .value', this.element).html(slope.toFixed(2));
+        }
+    }
 };
 
 VectorDraw.prototype.isVectorTailDraggable = function(vector) {
-    return vector.elType === 'segment';
+    return vector.elType !== 'arrow';
 };
 
 VectorDraw.prototype.canCreateVectorOnTopOf = function(el) {
@@ -329,7 +435,7 @@ VectorDraw.prototype.canCreateVectorOnTopOf = function(el) {
     if (el instanceof JXG.Point) {
         var vector = this.getVectorForObject(el);
         if (!vector) {
-            return true;
+            return el.getProperty('fixed');
         } else if (el === vector.point1 && !this.isVectorTailDraggable(vector)) {
             return true;
         } else {
@@ -349,13 +455,17 @@ VectorDraw.prototype.objectsUnderMouse = function(coords) {
 VectorDraw.prototype.onBoardDown = function(evt) {
     this.pushHistory();
     // Can't create a vector if none is selected from the list.
-    var vec_idx = this.element.find('.menu select').val();
+    var selected = this.getSelectedElement();
     var coords = this.getMouseCoords(evt);
     var targetObjects = this.objectsUnderMouse(coords);
-    if (vec_idx && (!targetObjects || _.all(targetObjects, this.canCreateVectorOnTopOf.bind(this)))) {
-        this.drawMode = true;
+    if (selected.idx && (!targetObjects || _.all(targetObjects, this.canCreateVectorOnTopOf.bind(this)))) {
         var point_coords = [coords.usrCoords[1], coords.usrCoords[2]];
-        this.dragged_vector = this.renderVector(vec_idx, [point_coords, point_coords]);
+        if (selected.type === 'vector') {
+            this.drawMode = true;
+            this.dragged_vector = this.renderVector(selected.idx, [point_coords, point_coords]);
+        } else {
+            this.renderPoint(selected.idx, point_coords);
+        }
     }
     else {
         this.drawMode = false;
@@ -397,14 +507,20 @@ VectorDraw.prototype.getVectorCoords = function(name) {
 };
 
 VectorDraw.prototype.getState = function() {
-    var vectors = {};
+    var vectors = {}, points = {};
     this.settings.vectors.forEach(function(vec) {
         var coords = this.getVectorCoords(vec.name);
         if (coords) {
             vectors[vec.name] = coords;
         }
     }, this);
-    return {vectors: vectors};
+    this.settings.points.forEach(function(point) {
+        var obj = this.board.elementsByName[point.name];
+        if (obj) {
+            points[point.name] = [obj.X(), obj.Y()];
+        }
+    }, this);
+    return {vectors: vectors, points: points};
 };
 
 VectorDraw.prototype.setState = function(state) {
@@ -414,6 +530,14 @@ VectorDraw.prototype.setState = function(state) {
             this.renderVector(idx, [vec_state.tail, vec_state.tip]);
         } else {
             this.removeVector(idx);
+        }
+    }, this);
+    this.settings.points.forEach(function(point, idx) {
+        var point_state = state.points[point.name];
+        if (point_state) {
+            this.renderPoint(idx, point_state);
+        } else {
+            this.removePoint(idx);
         }
     }, this);
     this.board.update();
@@ -446,8 +570,10 @@ var getInput = function() {
         }
         checks.push(presence_check);
 
-        ['tail', 'tail_x', 'tail_y', 'tip', 'tip_x', 'tip_y', 'coords',
-         'length', 'angle', 'segment_angle', 'segment_coords'].forEach(function(prop) {
+        [
+            'tail', 'tail_x', 'tail_y', 'tip', 'tip_x', 'tip_y', 'coords',
+            'length', 'angle', 'segment_angle', 'segment_coords', 'points_on_line'
+        ].forEach(function(prop) {
             if (prop in answer) {
                 var check = {vector: name, check: prop, expected: answer[prop]};
                 if (prop + '_tolerance' in answer) {

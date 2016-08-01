@@ -44,7 +44,10 @@
               ],
               points: [
                   {name: 'cm', coords: [0, -0.75]},
-                  {name: 'Point', description:"Demo Point", coords: [0, 1], fixed:false}
+                  {
+                    name: 'Point', fixed: false, description: 'Demo Point',
+                    render: false, style: {color: '#ff00ff', size: 2}
+                  }
               ],
               expected_result: {
                  'N': {angle: 90, angle_tolerance: 2, tail: [0, -0.75], tail_tolerance: 0.25},

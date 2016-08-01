@@ -452,6 +452,50 @@ VectorDraw.prototype.objectsUnderMouse = function(coords) {
     return _.filter(_.values(this.board.objects), filter);
 };
 
+VectorDraw.prototype.preventDefault = function(e) {
+    // for disabling scroll http://stackoverflow.com/a/4770179/2747370
+    e = e || window.event;
+    if (e.preventDefault){
+        e.preventDefault();
+    }
+    e.returnValue = false;  
+}
+
+VectorDraw.prototype.preventDefaultForScrollKeys = function(e) {
+    // for disabling scroll http://stackoverflow.com/a/4770179/2747370
+    var keys = {37: 1, 38: 1, 39: 1, 40: 1};
+    if (keys[e.keyCode]) {
+        this.preventDefault(e);
+        return false;
+    }
+}
+
+VectorDraw.prototype.disableScroll = function() {
+    // for disabling scroll http://stackoverflow.com/a/4770179/2747370
+    var preventDefault = this.preventDefault;
+    var preventDefaultForScrollKeys = this.preventDefaultForScrollKeys;
+    if (window.addEventListener){ // older FF
+        window.addEventListener('DOMMouseScroll', preventDefault, false);
+    }
+    window.onwheel = preventDefault; // modern standard
+    window.onmousewheel = document.onmousewheel = preventDefault; // older browsers, IE
+    window.ontouchmove  = preventDefault; // mobile
+    document.onkeydown  = preventDefaultForScrollKeys;
+}   
+
+VectorDraw.prototype.enableScroll = function() {
+    // for disabling scroll http://stackoverflow.com/a/4770179/2747370
+    var preventDefault = this.preventDefault;
+    var preventDefaultForScrollKeys = this.preventDefaultForScrollKeys;
+    if (window.removeEventListener){
+        window.removeEventListener('DOMMouseScroll', preventDefault, false);
+    }
+    window.onmousewheel = document.onmousewheel = null; 
+    window.onwheel = null; 
+    window.ontouchmove = null;  
+    document.onkeydown = null;  
+}
+
 VectorDraw.prototype.onBoardDown = function(evt) {
     this.pushHistory();
     // Can't create a vector if none is selected from the list.
@@ -462,6 +506,7 @@ VectorDraw.prototype.onBoardDown = function(evt) {
         var point_coords = [coords.usrCoords[1], coords.usrCoords[2]];
         if (selected.type === 'vector') {
             this.drawMode = true;
+            this.disableScroll();
             this.dragged_vector = this.renderVector(selected.idx, [point_coords, point_coords]);
         } else {
             this.renderPoint(selected.idx, point_coords);
@@ -489,6 +534,7 @@ VectorDraw.prototype.onBoardMove = function(evt) {
 };
 
 VectorDraw.prototype.onBoardUp = function(evt) {
+    this.enableScroll();
     this.drawMode = false;
     if (this.dragged_vector && !this.isVectorTailDraggable(this.dragged_vector)) {
         this.dragged_vector.point1.setProperty({fixed: true});

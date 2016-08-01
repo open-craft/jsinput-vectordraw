@@ -25,6 +25,7 @@ VectorDraw.prototype.sanitizeSettings = function(settings) {
         height: 400,
         axis: false,
         background: null,
+        snap_angle_increment: 0,
         bounding_box_size: 10,
         show_navigation: false,
         show_vector_properties: true,
@@ -503,6 +504,39 @@ VectorDraw.prototype.enableScroll = function() {
     document.onkeydown = null;  
 }
 
+VectorDraw.prototype.snapAngle = function(vector){
+    if (this.settings.snap_angle_increment === 0){
+        return
+    }
+    
+    if (vector.point2.lastDragTime > vector.point1.lastDragTime){
+        // p1 is always the anchor; p2 can move during snap
+        var p1 = vector.point1;
+        var p2 = vector.point2;
+    } else {
+        var p1 = vector.point2;
+        var p2 = vector.point1;
+    }
+    
+    // Calculate new position for p2
+    var x1 = p1.X(),
+        y1 = p1.Y(),
+        x2 = p2.X(),
+        y2 = p2.Y();
+    var length = Math.sqrt( (x2-x1)*(x2-x1) + (y2-y1)*(y2-y1) );
+    var angle = Math.atan2(y2-y1, x2-x1)/Math.PI*180;
+    angle = Math.round(angle/this.settings.snap_angle_increment) * this.settings.snap_angle_increment;
+    var angle_rad = angle*Math.PI/180;
+    
+    // update p2
+    x2 = x1 + length*Math.cos(angle_rad);
+    y2 = y1 + length*Math.sin(angle_rad);
+    
+    p2.setPosition(JXG.COORDS_BY_USER,[x2,y2]);
+    this.board.fullUpdate();
+    this.updateVectorProperties(vector);
+}
+
 VectorDraw.prototype.onBoardDown = function(evt) {
     this.pushHistory();
     // Can't create a vector if none is selected from the list.
@@ -543,6 +577,9 @@ VectorDraw.prototype.onBoardMove = function(evt) {
 VectorDraw.prototype.onBoardUp = function(evt) {
     this.enableScroll();
     this.drawMode = false;
+    if (this.dragged_vector) {
+        this.snapAngle(this.dragged_vector);
+    }
     if (this.dragged_vector && !this.isVectorTailDraggable(this.dragged_vector)) {
         this.dragged_vector.point1.setProperty({fixed: true});
     }

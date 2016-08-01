@@ -49,6 +49,7 @@ supports these properties:
 * `custom_checks`: An array of custom checks used for grading. This is
   needed when the grading is more complex and can't be defined in
   terms of `expected_result` only. More info below.
+* `snap_angle_increment`: degree increment at which to snap angles for vectors, segments, and lines. (Defaults to `0`, no snapping.)
 * `axis`: Show the graph axis (defaults to `false`).
 * `show_navigation`: Show navigation arrows and zooom controls
   (defaults to `false`).

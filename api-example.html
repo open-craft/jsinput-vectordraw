@@ -19,6 +19,7 @@
               width: 550,
               height: 450,
               bounding_box_size: 8,
+              snap_angle_increment:10,
               background: {
                   src: 'simple_car.png',
                   width: 20
@@ -42,7 +43,13 @@
                         name: 'Segment', description: 'Demo Segment', type: 'segment', render: false
                     }
               ],
-              points: [{name: 'cm', coords: [0, -0.75]}],
+              points: [
+                  {name: 'cm', coords: [0, -0.75]},
+                  {
+                    name: 'Point', fixed: false, description: 'Demo Point',
+                    render: false, style: {color: '#ff00ff', size: 2}
+                  }
+              ],
               expected_result: {
                  'N': {angle: 90, angle_tolerance: 2, tail: [0, -0.75], tail_tolerance: 0.25},
                  'g': {angle: 270, angle_errmsg: 'Gravity angle is wrong.', angle_tolerance: 2, tail: [0, -0.75], tail_tolerance: 0.25},

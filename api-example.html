@@ -32,7 +32,12 @@
                         name: 'f', description: 'Friction - f', coords: [[-2, -5], [-1, -3]], render: false,
                         style: {pointSize:3, pointColor: 'green', label: "Fric", color:"#cccccc", width:1.5}
                     },
-                    {name: 'g', description: 'Gravity - g', tail: [0, 1.5], length: 5, angle: -75, render: false}
+                    {
+                        name: 'g', description: 'Gravity - g', tail: [0, 1.5], length: 5, angle: -75, render: false
+                    },
+                    {
+                        name: 'Line', description: 'Demo Line', type: 'line', render: false
+                    }
               ],
               points: [{name: 'cm', coords: [0, -0.75]}],
               expected_result: {

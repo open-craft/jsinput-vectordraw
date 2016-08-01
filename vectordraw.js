@@ -449,12 +449,15 @@ VectorDraw.prototype.canCreateVectorOnTopOf = function(el) {
     return true;
 };
 
-VectorDraw.prototype.objectsUnderMouse = function(coords) {
-    var filter = function(el) {
-        return !(el instanceof JXG.Image) && el.hasPoint(coords.scrCoords[1], coords.scrCoords[2]);
-    };
-    return _.filter(_.values(this.board.objects), filter);
-};
+VectorDraw.prototype.objectsUnderMouse = function(){
+    var targetObjects = [];
+    var highlightedObjects = this.board.highlightedObjects
+    var keys = Object.keys(highlightedObjects);
+    for (var i = 0; i < keys.length; i++) {
+        targetObjects.push( highlightedObjects[keys[i]] );
+    }
+    return targetObjects
+}
 
 VectorDraw.prototype.preventDefault = function(e) {
     // for disabling scroll http://stackoverflow.com/a/4770179/2747370

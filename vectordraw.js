@@ -263,7 +263,7 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
 
     var tail = this.board.create('point', coords[0], {
         name: vec.name,
-        size: style.pointSize,
+        size: (vec.type === 'arrow' | vec.type === 'vector') ? -1 : style.pointSize,
         fillColor: style.pointColor,
         strokeColor: style.pointColor,
         withLabel: false,

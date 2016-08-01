@@ -42,7 +42,10 @@
                         name: 'Segment', description: 'Demo Segment', type: 'segment', render: false
                     }
               ],
-              points: [{name: 'cm', coords: [0, -0.75]}],
+              points: [
+                  {name: 'cm', coords: [0, -0.75]},
+                  {name: 'Point', description:"Demo Point", coords: [0, 1], fixed:false}
+              ],
               expected_result: {
                  'N': {angle: 90, angle_tolerance: 2, tail: [0, -0.75], tail_tolerance: 0.25},
                  'g': {angle: 270, angle_errmsg: 'Gravity angle is wrong.', angle_tolerance: 2, tail: [0, -0.75], tail_tolerance: 0.25},

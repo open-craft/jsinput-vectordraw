@@ -49,7 +49,8 @@ VectorDraw.prototype.sanitizeSettings = function(settings) {
         render: false,
         length_factor: 1,
         length_units: '',
-        base_angle: 0
+        base_angle: 0,
+        fixed_length: false
     };
     var default_vector_style = {
         pointSize: 1,
@@ -276,16 +277,25 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
         showInfoBox: false
     });
     var tip = this.board.create('point', coords[1], {
-        name: style.label || vec.name,
+        name: vec.name,
         size: style.pointSize,
         fillColor: style.pointColor,
         strokeColor: style.pointColor,
-        withLabel: true,
+        withLabel: false,
         showInfoBox: false
     });
+    if (vec.fixed_length){
+        tip.hideElement();
+    }
+    var labelPoint  = this.board.create('point', [function(){return tip.X()}, function(){return tip.Y()}], {
+        name: style.label || vec.name,
+        withLabel: true,
+        size:-1,
+        showInfoBox: false
+    })
     // Not sure why, but including labelColor in attributes above doesn't work,
     // it only works when set explicitly with setAttribute.
-    tip.setAttribute({labelColor: style.labelColor});
+    labelPoint.setAttribute({labelColor: style.labelColor});
 
     var line_type = (vec.type === 'vector') ? 'arrow' : vec.type;
     var line = this.board.create(line_type, [tail, tip], {
@@ -294,7 +304,7 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
         strokeColor: style.color
     });
 
-    tip.label.setAttribute({fontsize: 18, highlightStrokeColor: 'black'});
+    labelPoint.label.setAttribute({fontsize: 18, highlightStrokeColor: 'black'});
 
     // Disable the <option> element corresponding to vector.
     var option = this.getMenuOption('vector', idx);

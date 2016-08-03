@@ -83,3 +83,7 @@ body {
 .menu .vector-prop-slope {
     display: none;
 }
+
+.menu .controls button.hidden {
+    display:none;
+}

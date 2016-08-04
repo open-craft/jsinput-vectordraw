@@ -665,7 +665,7 @@ var getInput = function() {
         checks.push(presence_check);
 
         [
-            'tail', 'tail_x', 'tail_y', 'tip', 'tip_x', 'tip_y', 'coords',
+            'min_length', 'tail', 'tail_x', 'tail_y', 'tip', 'tip_x', 'tip_y', 'coords',
             'length', 'angle', 'segment_angle', 'segment_coords', 'points_on_line'
         ].forEach(function(prop) {
             if (prop in answer) {

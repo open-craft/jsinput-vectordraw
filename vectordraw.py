@@ -35,7 +35,7 @@ def check_presence(check, vectors):
 def check_min_length(check, vectors):
     vec = vectors[check['vector']]
     if vec.length < check['expected']:
-        return _errmsg("Vector {name} is so short it's hard for us to understand. Please make {name} longer. (Your {label} length: {length:.1f})", check, vectors)
+        return _errmsg("Vector {name} is so short it's hard for us to understand. Please make {name} longer. (Your {name} vector has length: {length:.1f})", check, vectors)
 def check_tail(check, vectors):
     vec = vectors[check['vector']]
     tolerance = check.get('tolerance', 1.0)

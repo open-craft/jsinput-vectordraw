@@ -50,7 +50,8 @@ VectorDraw.prototype.sanitizeSettings = function(settings) {
         length_factor: 1,
         length_units: '',
         base_angle: 0,
-        fixed_length_and_orientation: false
+        fixed_length_and_orientation: false,
+        fixed: false,
     };
     var default_vector_style = {
         pointSize: 1,
@@ -303,6 +304,12 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
         strokeWidth: style.width,
         strokeColor: style.color
     });
+
+    if (vec.fixed) {
+        line.setAttribute({fixed:true});
+        tail.hideElement();
+        tip.hideElement();
+    }
 
     labelPoint.label.setAttribute({fontsize: 18, highlightStrokeColor: 'black'});
 

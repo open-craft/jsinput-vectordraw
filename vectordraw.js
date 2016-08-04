@@ -50,7 +50,7 @@ VectorDraw.prototype.sanitizeSettings = function(settings) {
         length_factor: 1,
         length_units: '',
         base_angle: 0,
-        fixed_length: false
+        fixed_length_and_orientation: false
     };
     var default_vector_style = {
         pointSize: 1,
@@ -284,7 +284,7 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
         withLabel: false,
         showInfoBox: false
     });
-    if (vec.fixed_length){
+    if (vec.fixed_length_and_orientation){
         tip.hideElement();
     }
     var labelPoint  = this.board.create('point', [function(){return tip.X()}, function(){return tip.Y()}], {

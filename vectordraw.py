@@ -32,6 +32,10 @@ def check_presence(check, vectors):
         errmsg = check.get('errmsg', 'You need to use the {name} vector.')
         return errmsg.format(name=check['vector'])
 
+def check_min_length(check, vectors):
+    vec = vectors[check['vector']]
+    if vec.length < check['expected']:
+        return _errmsg("Vector {name} is so short it's hard for us to understand. Please make {name} longer. (Your {name} vector has length: {length:.1f})", check, vectors)
 def check_tail(check, vectors):
     vec = vectors[check['vector']]
     tolerance = check.get('tolerance', 1.0)
@@ -182,6 +186,7 @@ class Vector(object):
 class Grader(object):
     check_registry = {
         'presence': check_presence,
+        'min_length': check_min_length,
         'tail': check_tail,
         'tip': check_tip,
         'tail_x': check_tail_x,

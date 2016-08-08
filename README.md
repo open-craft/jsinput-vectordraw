@@ -86,6 +86,7 @@ These are the supported vector properties:
 * `render`: Whether this vector should be drawn on the board
   automatically, without the user having to add it from the dropdown.
   Defaults to `false`.
+* `fixed`: If `true`, the vector will be completely static: cannot be repositioned in any way or even selected. Defaults to `false`.
 * `style`: Custom style properties. Supports the following options:
   `label`, `width`, `color`, `pointSize`, `pointColor`, `labelColor`.
 * `type`: Supported values are `"vector"` (default), `"segment"`, and

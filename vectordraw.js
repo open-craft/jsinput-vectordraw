@@ -306,7 +306,7 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
     });
 
     if (vec.fixed) {
-        line.setAttribute({fixed:true});
+        line.setAttribute({fixed:true; highlight:false});
         tail.hideElement();
         tip.hideElement();
     }

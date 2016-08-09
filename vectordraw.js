@@ -298,7 +298,9 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
     // Not sure why, but including labelColor in attributes above doesn't work,
     // it only works when set explicitly with setAttribute.
     labelPoint.setAttribute({labelColor: style.labelColor});
-
+    // add labelPoint as child of tip, which enables removal later.
+    tip.addChild(labelPoint);
+    
     var line_type = (vec.type === 'vector') ? 'arrow' : vec.type;
     var line = this.board.create(line_type, [tail, tip], {
         name: vec.name,

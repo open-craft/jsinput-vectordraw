@@ -25,9 +25,11 @@ VectorDraw.prototype.sanitizeSettings = function(settings) {
         height: 400,
         axis: false,
         background: null,
+        snap_angle_increment: 0,
         bounding_box_size: 10,
         show_navigation: false,
         show_vector_properties: true,
+        show_add_vector: true,
         add_vector_label: 'Add Selected Force',
         vector_properties_label: 'Vector Properties',
         vectors: [],
@@ -48,7 +50,7 @@ VectorDraw.prototype.sanitizeSettings = function(settings) {
         length_factor: 1,
         length_units: '',
         base_angle: 0,
-        style: {}
+        fixed_length_and_orientation: false
     };
     var default_vector_style = {
         pointSize: 1,
@@ -60,14 +62,16 @@ VectorDraw.prototype.sanitizeSettings = function(settings) {
     };
     settings.vectors.forEach(function(vector) {
         _.defaults(vector, default_vector);
+        if (!_.has(vector, 'style')) {
+            vector.style = {};
+        }
         _.defaults(vector.style, default_vector_style);
     });
 
     // Fill in defaults for points.
     var default_point = {
         fixed: true,  // Default to true for backwards compatibility.
-        render: true,
-        style: {}
+        render: true
     };
     var default_point_style = {
         size: 1,
@@ -77,6 +81,9 @@ VectorDraw.prototype.sanitizeSettings = function(settings) {
     };
     settings.points.forEach(function(point) {
         _.defaults(point, default_point);
+        if (!_.has(point, 'style')) {
+            point.style = {};
+        }
         _.defaults(point.style, default_point_style);
         point.style.name = point.name;
         point.style.fixed = point.fixed;
@@ -100,7 +107,10 @@ VectorDraw.prototype.template = _.template([
     '            <option value="point-<%= idx %>"><%= point.description %></option>',
     '        <% }}) %>',
     '        </select>',
-    '        <button class="add-vector"><%= add_vector_label %></button>',
+    '        <% var addVectorClass = show_add_vector ? "" : "hidden" %>',
+    '        <button class="add-vector <%= addVectorClass%>">',
+    '           <%= add_vector_label %>',
+    '        </button>',
     '        <button class="reset">Reset</button>',
     '        <button class="undo" title="Undo"><span class="fa fa-undo" /></button>',
     '        <button class="redo" title="redo"><span class="fa fa-repeat" /></button>',
@@ -259,7 +269,7 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
 
     var tail = this.board.create('point', coords[0], {
         name: vec.name,
-        size: style.pointSize,
+        size: (vec.type === 'arrow' | vec.type === 'vector') ? -1 : style.pointSize,
         fillColor: style.pointColor,
         strokeColor: style.pointColor,
         withLabel: false,
@@ -271,13 +281,24 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
         size: style.pointSize,
         fillColor: style.pointColor,
         strokeColor: style.pointColor,
-        withLabel: true,
+        withLabel: false,
         showInfoBox: false
     });
+    if (vec.fixed_length_and_orientation){
+        tip.hideElement();
+    }
+    var labelPoint  = this.board.create('point', [function(){return tip.X()}, function(){return tip.Y()}], {
+        name: vec.style.label || vec.name,
+        withLabel: true,
+        size:-1,
+        showInfoBox: false
+    })
     // Not sure why, but including labelColor in attributes above doesn't work,
     // it only works when set explicitly with setAttribute.
-    tip.setAttribute({labelColor: style.labelColor});
-
+    labelPoint.setAttribute({labelColor: style.labelColor});
+    // add labelPoint as child of tip, which enables removal later.
+    tip.addChild(labelPoint);
+    
     var line_type = (vec.type === 'vector') ? 'arrow' : vec.type;
     var line = this.board.create(line_type, [tail, tip], {
         name: vec.name,
@@ -285,7 +306,7 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
         strokeColor: style.color
     });
 
-    tip.label.setAttribute({fontsize: 18, highlightStrokeColor: 'black'});
+    labelPoint.label.setAttribute({fontsize: 18, highlightStrokeColor: 'black'});
 
     // Disable the <option> element corresponding to vector.
     var option = this.getMenuOption('vector', idx);
@@ -445,12 +466,92 @@ VectorDraw.prototype.canCreateVectorOnTopOf = function(el) {
     return true;
 };
 
-VectorDraw.prototype.objectsUnderMouse = function(coords) {
-    var filter = function(el) {
-        return !(el instanceof JXG.Image) && el.hasPoint(coords.scrCoords[1], coords.scrCoords[2]);
-    };
-    return _.filter(_.values(this.board.objects), filter);
-};
+VectorDraw.prototype.objectsUnderMouse = function(){
+    var targetObjects = [];
+    var highlightedObjects = this.board.highlightedObjects
+    var keys = Object.keys(highlightedObjects);
+    for (var i = 0; i < keys.length; i++) {
+        targetObjects.push( highlightedObjects[keys[i]] );
+    }
+    return targetObjects
+}
+
+VectorDraw.prototype.preventDefault = function(e) {
+    // for disabling scroll http://stackoverflow.com/a/4770179/2747370
+    e = e || window.event;
+    if (e.preventDefault){
+        e.preventDefault();
+    }
+    e.returnValue = false;  
+}
+
+VectorDraw.prototype.preventDefaultForScrollKeys = function(e) {
+    // for disabling scroll http://stackoverflow.com/a/4770179/2747370
+    var keys = {37: 1, 38: 1, 39: 1, 40: 1};
+    if (keys[e.keyCode]) {
+        this.preventDefault(e);
+        return false;
+    }
+}
+
+VectorDraw.prototype.disableScroll = function() {
+    // for disabling scroll http://stackoverflow.com/a/4770179/2747370
+    var preventDefault = this.preventDefault;
+    var preventDefaultForScrollKeys = this.preventDefaultForScrollKeys;
+    if (window.addEventListener){ // older FF
+        window.addEventListener('DOMMouseScroll', preventDefault, false);
+    }
+    window.onwheel = preventDefault; // modern standard
+    window.onmousewheel = document.onmousewheel = preventDefault; // older browsers, IE
+    window.ontouchmove  = preventDefault; // mobile
+    document.onkeydown  = preventDefaultForScrollKeys;
+}   
+
+VectorDraw.prototype.enableScroll = function() {
+    // for disabling scroll http://stackoverflow.com/a/4770179/2747370
+    var preventDefault = this.preventDefault;
+    var preventDefaultForScrollKeys = this.preventDefaultForScrollKeys;
+    if (window.removeEventListener){
+        window.removeEventListener('DOMMouseScroll', preventDefault, false);
+    }
+    window.onmousewheel = document.onmousewheel = null; 
+    window.onwheel = null; 
+    window.ontouchmove = null;  
+    document.onkeydown = null;  
+}
+
+VectorDraw.prototype.snapAngle = function(vector){
+    if (this.settings.snap_angle_increment === 0){
+        return
+    }
+    
+    if (vector.point2.lastDragTime > vector.point1.lastDragTime){
+        // p1 is always the anchor; p2 can move during snap
+        var p1 = vector.point1;
+        var p2 = vector.point2;
+    } else {
+        var p1 = vector.point2;
+        var p2 = vector.point1;
+    }
+    
+    // Calculate new position for p2
+    var x1 = p1.X(),
+        y1 = p1.Y(),
+        x2 = p2.X(),
+        y2 = p2.Y();
+    var length = Math.sqrt( (x2-x1)*(x2-x1) + (y2-y1)*(y2-y1) );
+    var angle = Math.atan2(y2-y1, x2-x1)/Math.PI*180;
+    angle = Math.round(angle/this.settings.snap_angle_increment) * this.settings.snap_angle_increment;
+    var angle_rad = angle*Math.PI/180;
+    
+    // update p2
+    x2 = x1 + length*Math.cos(angle_rad);
+    y2 = y1 + length*Math.sin(angle_rad);
+    
+    p2.setPosition(JXG.COORDS_BY_USER,[x2,y2]);
+    this.board.fullUpdate();
+    this.updateVectorProperties(vector);
+}
 
 VectorDraw.prototype.onBoardDown = function(evt) {
     this.pushHistory();
@@ -458,10 +559,11 @@ VectorDraw.prototype.onBoardDown = function(evt) {
     var selected = this.getSelectedElement();
     var coords = this.getMouseCoords(evt);
     var targetObjects = this.objectsUnderMouse(coords);
-    if (selected.idx && (!targetObjects || _.all(targetObjects, this.canCreateVectorOnTopOf.bind(this)))) {
+    if (!_.isEmpty(selected) && (!targetObjects || _.all(targetObjects, this.canCreateVectorOnTopOf.bind(this)))) {
         var point_coords = [coords.usrCoords[1], coords.usrCoords[2]];
         if (selected.type === 'vector') {
             this.drawMode = true;
+            this.disableScroll();
             this.dragged_vector = this.renderVector(selected.idx, [point_coords, point_coords]);
         } else {
             this.renderPoint(selected.idx, point_coords);
@@ -489,7 +591,11 @@ VectorDraw.prototype.onBoardMove = function(evt) {
 };
 
 VectorDraw.prototype.onBoardUp = function(evt) {
+    this.enableScroll();
     this.drawMode = false;
+    if (this.dragged_vector) {
+        this.snapAngle(this.dragged_vector);
+    }
     if (this.dragged_vector && !this.isVectorTailDraggable(this.dragged_vector)) {
         this.dragged_vector.point1.setProperty({fixed: true});
     }

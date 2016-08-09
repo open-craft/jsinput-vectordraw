@@ -277,7 +277,7 @@ VectorDraw.prototype.renderVector = function(idx, coords) {
         showInfoBox: false
     });
     var tip = this.board.create('point', coords[1], {
-        name: vec.name,
+        name: style.label || vec.name,
         size: style.pointSize,
         fillColor: style.pointColor,
         strokeColor: style.pointColor,

@@ -47,8 +47,7 @@ VectorDraw.prototype.sanitizeSettings = function(settings) {
         render: false,
         length_factor: 1,
         length_units: '',
-        base_angle: 0,
-        style: {}
+        base_angle: 0
     };
     var default_vector_style = {
         pointSize: 1,
@@ -60,14 +59,16 @@ VectorDraw.prototype.sanitizeSettings = function(settings) {
     };
     settings.vectors.forEach(function(vector) {
         _.defaults(vector, default_vector);
+        if (!_.has(vector, 'style')) {
+            vector.style = {};
+        }
         _.defaults(vector.style, default_vector_style);
     });
 
     // Fill in defaults for points.
     var default_point = {
         fixed: true,  // Default to true for backwards compatibility.
-        render: true,
-        style: {}
+        render: true
     };
     var default_point_style = {
         size: 1,
@@ -77,6 +78,9 @@ VectorDraw.prototype.sanitizeSettings = function(settings) {
     };
     settings.points.forEach(function(point) {
         _.defaults(point, default_point);
+        if (!_.has(point, 'style')) {
+            point.style = {};
+        }
         _.defaults(point.style, default_point_style);
         point.style.name = point.name;
         point.style.fixed = point.fixed;
@@ -461,7 +465,7 @@ VectorDraw.prototype.onBoardDown = function(evt) {
     var selected = this.getSelectedElement();
     var coords = this.getMouseCoords(evt);
     var targetObjects = this.objectsUnderMouse(coords);
-    if (selected.idx && (!targetObjects || _.all(targetObjects, this.canCreateVectorOnTopOf.bind(this)))) {
+    if (!_.isEmpty(selected) && (!targetObjects || _.all(targetObjects, this.canCreateVectorOnTopOf.bind(this)))) {
         var point_coords = [coords.usrCoords[1], coords.usrCoords[2]];
         if (selected.type === 'vector') {
             this.drawMode = true;

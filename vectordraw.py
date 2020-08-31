@@ -5,9 +5,11 @@
 ### Python API ####
 ###################
 
+from __future__ import absolute_import
 import inspect
 import json
 import math
+import six
 
 
 ## Built-in check functions
@@ -222,11 +224,11 @@ class Grader(object):
 
     def _get_vectors(self, answer):
         vectors = {}
-        for name, props in answer['vectors'].iteritems():
+        for name, props in six.iteritems(answer['vectors']):
             tail = props['tail']
             tip = props['tip']
             vectors[name] = Vector(name, tail[0], tail[1], tip[0], tip[1])
         return vectors
 
     def _get_points(self, answer):
-        return {name: Point(*coords) for name, coords in answer['points'].iteritems()}
+        return {name: Point(*coords) for name, coords in six.iteritems(answer['points'])}

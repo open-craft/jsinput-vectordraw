@@ -241,4 +241,4 @@ class Grader(object):
         return vectors
 
     def _get_points(self, answer):
-        return {name: Point(*coords) for name, coords in iteritems(answer['points'])}
+        return {name: Point(*coords) for name, coords in iteritems(answer.get('points', {}))}
